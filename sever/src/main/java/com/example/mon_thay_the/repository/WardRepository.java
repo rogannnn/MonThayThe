@@ -12,5 +12,9 @@ import java.util.List;
 public interface WardRepository extends JpaRepository<Ward, String> {
     @Query("SELECT w FROM Ward w WHERE w.district.code like ?1")
     List<Ward> findByDistrict(String districtCode);
+
+
+    @Query("SELECT w FROM Ward w WHERE w.code = ?1")
+    Ward getWardByCode(String wardCode);
 }
 

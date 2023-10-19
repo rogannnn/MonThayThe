@@ -1,5 +1,6 @@
 package com.example.mon_thay_the.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -34,18 +35,23 @@ public class User {
 
     @Column(name="enabled", nullable = false)
     private Boolean enabled;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Collection<Review> reviews;
     @ManyToOne()
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Collection<Address> addresses;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Collection<CartItem> carts;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Collection<Order> orders;
 

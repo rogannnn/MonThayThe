@@ -1,5 +1,6 @@
 package com.example.mon_thay_the.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Collection;
@@ -15,6 +16,7 @@ public class Role {
     @Column(name="name", length = 20, nullable = false, unique = true)
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private Collection<User> users;
 

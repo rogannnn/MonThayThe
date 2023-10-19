@@ -26,7 +26,7 @@ public class CartItemService {
         return cartItemRepo.findCartItemByUser(user);
     }
 
-    public int addProduct(int productId, int quantity, User user){
+    public CartItem addProduct(int productId, int quantity, User user){
         int addedQuantity = quantity;
 
         Product product = productRepo.findById(productId).get();
@@ -41,20 +41,19 @@ public class CartItemService {
             cartItem.setUser(user);
             cartItem.setQuantity(quantity);
         }
-        cartItemRepo.save(cartItem);
-        return addedQuantity;
+        return cartItemRepo.save(cartItem);
     }
 
     public Long countCartItemByUser(User user){
         return cartItemRepo.countByUser(user);
     }
 
-    public float updateQuantity(Integer quantity, Integer productId, User user){
+    public CartItem updateQuantity(Integer quantity, Integer productId, User user){
         cartItemRepo.updateQuantity(quantity, productId, user.getId());
 
         Product product = productRepo.findById(productId).get();
-        float subtotal = (float)(product.getPrice() * quantity);
-        return subtotal;
+        CartItem cartItem = cartItemRepo.findByUserAndProduct(user,product);
+        return cartItem;
     }
 
     public void removeCartItem(Integer userId, Integer productId){

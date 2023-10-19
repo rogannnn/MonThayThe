@@ -43,4 +43,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer > {
     @Query("SELECT o FROM Order o WHERE o.orderStatus.id = ?1")
     Page<Order> findAdminByStatus(Integer orderStatus, Pageable pageable);
 
+    @Query("SELECT o FROM Order o WHERE o.id = ?1 AND o.user.id = ?1")
+    Order findByIdAndUserId(Integer orderId, Integer userId);
 }

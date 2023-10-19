@@ -2,6 +2,7 @@ package com.example.mon_thay_the.repository;
 
 
 import com.example.mon_thay_the.entity.Address;
+import com.example.mon_thay_the.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,10 @@ public interface AddressRepository extends JpaRepository<Address, Integer> {
 
     boolean existsAddressById(Integer addressId);
 
+
+    @Query("SELECT a FROM Address a WHERE a.user.id = ?1 AND a.isDefault = true")
+    Address existsAddressByDefaultAndUser(Integer userId);
+
     @Modifying
     @Query("UPDATE Address a SET a.isDefault = true WHERE a.id = ?1")
     void setDefaultAddress(Integer addressId);
@@ -30,4 +35,7 @@ public interface AddressRepository extends JpaRepository<Address, Integer> {
 
     @Query("SELECT a FROM Address a WHERE a.user.id = ?1 AND a.isDefault = true")
     Address findDefaultAddress(Integer id);
+
+    @Query("SELECT a FROM Address a WHERE a.user.id = ?1 AND a.id = ?2")
+    Address findByUserAndAddressId(Integer userId, Integer addressId);
 }

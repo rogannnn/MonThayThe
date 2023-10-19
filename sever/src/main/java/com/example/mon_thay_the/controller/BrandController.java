@@ -11,6 +11,7 @@ import com.example.mon_thay_the.response.BrandResponse;
 import com.example.mon_thay_the.response.ListBrandResponse;
 import com.example.mon_thay_the.service.BrandService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +54,7 @@ public class BrandController {
     }
 
     @PostMapping("/api/brand/new")
-    public ResponseEntity<?> addNewBrand(@RequestBody BrandRequest brandRequest,
+    public ResponseEntity<?> addNewBrand(@Valid @RequestBody BrandRequest brandRequest,
                                             HttpServletRequest request)
     {
         Brand brand = new Brand();

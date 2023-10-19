@@ -7,6 +7,7 @@ import com.example.mon_thay_the.exception.UserNotFoundException;
 import com.example.mon_thay_the.principal.MyUserDetails;
 import com.example.mon_thay_the.request.LoginRequest;
 import com.example.mon_thay_the.request.SignUpRequest;
+import com.example.mon_thay_the.response.BaseResponse;
 import com.example.mon_thay_the.response.SignUpReponse;
 import com.example.mon_thay_the.service.AuthenService;
 import com.example.mon_thay_the.service.JwtService;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.example.mon_thay_the.error.Error.LOGIN_SUCCESS;
 
 
 @RestController
@@ -55,23 +57,27 @@ public class AuthenController {
     }
 
     @PostMapping("/api/login")
-    public  ResponseEntity<SignUpReponse> loginPage(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) throws UserNotFoundException {
+    public  ResponseEntity<?> loginPage(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) throws UserNotFoundException {
+        User loginUser;
+        try {
+            loginUser  = userService.getUserByEmail(loginRequest.getEmail());
+        }catch (UserNotFoundException e){
+            BaseResponse baseResponse = new BaseResponse(0, "Không tìm thấy tài khoản với email này", request.getMethod(), HttpStatus.BAD_REQUEST.value());
+            return new ResponseEntity<>(baseResponse, HttpStatus.BAD_REQUEST);
+        }
        Authentication authentication =  authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
                         loginRequest.getPassword()
                 )
         );
-        User loginUser = userService.getUserByEmail(loginRequest.getEmail());
-        if(loginUser == null) throw new UserNotFoundException("Not found account with the email: " + loginRequest.getEmail());
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
         MyUserDetails myUserDetails = new MyUserDetails(loginUser);
         String acessToken = jwtService.generateToken(myUserDetails);
         String refeshToken = jwtService.generatereFreshToken(myUserDetails);
         UserDto user = new UserDto(loginUser);
-        SignUpReponse data = new SignUpReponse(1,"You has been logged successfully!",request.getMethod(), HttpStatus.OK.value(),user,acessToken,refeshToken);
-        return new ResponseEntity(data, HttpStatus.CREATED);
+        SignUpReponse data = new SignUpReponse(1,LOGIN_SUCCESS,request.getMethod(), HttpStatus.OK.value(),user,acessToken,refeshToken);
+        return new ResponseEntity(data, HttpStatus.OK);
 
     }
 

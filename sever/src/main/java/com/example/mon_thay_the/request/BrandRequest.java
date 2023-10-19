@@ -8,12 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static com.example.mon_thay_the.error.Error.*;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class BrandRequest {
-    @NotBlank(message = "Name must not be blank")
+    @NotBlank(message = NAME_BLANK_ERROR)
     @Size(max = 100, message = "Name should be less than 100 characters")
     private String name;
 

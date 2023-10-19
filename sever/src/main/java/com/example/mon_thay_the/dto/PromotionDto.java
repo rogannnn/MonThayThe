@@ -18,7 +18,6 @@ public class PromotionDto {
     private String name;
     private Date startDate;
     private Date finishDate;
-    private UserDto userDto;
 
     private List<PromotionDetailDto> promotionDetailDtoList = new ArrayList<>();
 
@@ -28,7 +27,6 @@ public class PromotionDto {
         this.name = promotion.getName();
         this.startDate = promotion.getStartDate();
         this.finishDate = promotion.getFinishDate();
-        this.userDto = new UserDto(promotion.getUser());
 
         for(PromotionDetail p : promotion.getPromotionDetails()){
             this.promotionDetailDtoList.add(new PromotionDetailDto(p));
@@ -65,14 +63,6 @@ public class PromotionDto {
 
     public void setFinishDate(Date finishDate) {
         this.finishDate = finishDate;
-    }
-
-    public UserDto getUserDto() {
-        return userDto;
-    }
-
-    public void setUserDto(UserDto userDto) {
-        this.userDto = userDto;
     }
 
     public List<PromotionDetailDto> getList() {

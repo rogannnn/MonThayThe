@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 public class CartItemRequest {
 
-    @NotBlank(message = "Product id must not be blank!")
+    @NotNull(message = "Product id must not be null!")
     private Integer id;
 
 

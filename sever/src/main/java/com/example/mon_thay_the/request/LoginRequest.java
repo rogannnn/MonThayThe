@@ -2,11 +2,12 @@ package com.example.mon_thay_the.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import static com.example.mon_thay_the.error.Error.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,13 +16,13 @@ import lombok.Setter;
 public class LoginRequest {
 
 
-    @NotBlank(message = "Email must not be blank")
-    @Email(message = "Email must be a well-formed email address")
+    @NotBlank(message = EMAIL_BLANK_ERROR)
+    @Email(message = EMAIL_VALIDATION)
     private String email;
 
 
-    @NotBlank(message = "Password must not be blank")
-    @Size(min = 6 , message = "Password should be greater than equal to 6 characters")
-    @Size(max = 64, message = "Password should be less than 64 characters")
+    @NotBlank(message = PASSWORD_BLANK_ERROR)
+//    @Size(min = 6 , message = "Password should be greater than equal to 6 characters")
+//    @Size(max = 64, message = "Password should be less than 64 characters")
     private String password;
 }

@@ -3,6 +3,7 @@ package com.example.mon_thay_the.service;
 
 import com.example.mon_thay_the.entity.*;
 import com.example.mon_thay_the.exception.AddressNotFoundException;
+import com.example.mon_thay_the.exception.NotFoundException;
 import com.example.mon_thay_the.repository.AddressRepository;
 import com.example.mon_thay_the.repository.DistrictRepository;
 import com.example.mon_thay_the.repository.ProvinceRepository;
@@ -75,7 +76,31 @@ public class AddressService {
         else throw new AddressNotFoundException("Could not found address with id " + addressId);
     }
 
+    public void setNonDefault(Integer addressId, Integer userId) throws AddressNotFoundException {
+        if(addressRepo.existsAddressById(addressId)){
+            addressRepo.setNonDefaultAddress(userId,addressId);
+        }
+        else throw new AddressNotFoundException("Could not found address with id " + addressId);
+    }
+
     public Address getDefaultAddress(User user) {
         return addressRepo.findDefaultAddress(user.getId());
+    }
+
+    public Boolean isUserHasDefaultAddress(User user){
+        Address address = addressRepo.existsAddressByDefaultAndUser(user.getId());
+        return address == null;
+    }
+
+    public Ward getWardByCode(String wardCode) throws NotFoundException {
+        Ward ward = wardRepo.getWardByCode(wardCode);
+        if(ward == null) throw new NotFoundException("Could not found ward with ward code: " + wardCode);
+        return ward;
+    }
+
+    public Address getAddressByUserAndAddressId(User user, Integer addressId) throws AddressNotFoundException {
+        Address address = addressRepo.findByUserAndAddressId(user.getId(), addressId);
+        if(address == null) throw new AddressNotFoundException("Could not found address id: "+ addressId + " with user ID: " + user.getId());
+        return address;
     }
 }

@@ -5,13 +5,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import static com.example.mon_thay_the.error.Error.NAME_BLANK_ERROR;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AddressRequest {
 
-    @NotBlank(message = "Name must not be blank")
+    @NotBlank(message = NAME_BLANK_ERROR)
     @Size(max = 255, message = "Name should be less than 255 characters")
     private String name;
 

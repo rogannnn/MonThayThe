@@ -12,20 +12,17 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ReviewDto {
-    private Integer id;
+
     private LocalDateTime date;
-    private UserDto user;
-    private ProductDto product;
+    private String userName;
     private String comment;
     private Integer vote;
 
     public ReviewDto(Review review){
-        this.id = review.getId();
         this.comment = review.getComment();
         this.vote = review.getVote();
         this.date = review.getDate();
-        this.user = new UserDto(review.getUser());
-        this.product = new ProductDto(review.getProduct());
+        this.userName = review.getUser().getFullName();
     }
 
 

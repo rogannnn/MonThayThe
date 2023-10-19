@@ -100,10 +100,6 @@ public class ProductController {
             productDtos.add(new ProductDto(p));
         }
 
-        for(ProductDto productDto : productDtos){
-            System.out.println(productDto.getName());
-        }
-
         ListProductResponse data = new ListProductResponse(1,"Get list products successfully!",request.getMethod(), HttpStatus.OK.value(),productDtos,pageProduct.getTotalPages(),pageNo);
         return new ResponseEntity(data, HttpStatus.OK);
     }

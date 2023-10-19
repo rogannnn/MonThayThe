@@ -11,14 +11,10 @@ import java.util.List;
 public class ListOrderResponse extends BaseResponse {
 
     private List<OrderDto> data;
-    private Integer totalPage;
-    private Integer pageNum;
 
 
-    public ListOrderResponse(Integer result, String msg, String method, Integer code, List<OrderDto> data, Integer totalPage, Integer pageNum){
+    public ListOrderResponse(Integer result, String msg, String method, Integer code, List<OrderDto> data){
         super(result, msg, method, code);
-        this.pageNum = pageNum;
-        this.totalPage = totalPage;
         this.data = data;
     }
 

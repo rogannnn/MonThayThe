@@ -60,7 +60,7 @@ public class OrderService {
         User user = userRepository.findById(userId).get();
         Address address = addressRepository.findById(addressId).get();
         Order order = new Order();
-        OrderStatus  orderStatus = new OrderStatus(1);
+        OrderStatus  orderStatus = orderStatusRepository.findById(1).get();
         double totalPrice = 0;
         for(CartItem c : listItem){
             totalPrice += c.getSubtotal();
@@ -187,5 +187,7 @@ public class OrderService {
     }
 
 
-
+    public Order getOrderByIdAndUser(Integer orderId, User user) {
+        return orderRepository.findByIdAndUserId(orderId, user.getId());
+    }
 }
