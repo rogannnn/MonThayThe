@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head th:replace="~{fragments/main_fragment.html :: page_head('Login Page')}"></head>
+<body>
+<div class="container-fluid text-center">
+
+  <div style="padding-top: 40px">
+    <a class="nav-link" th:href="@{/}">
+      <img th:src="@{/images/ptit.png}" style="object-fit: scale-down;width: 250px;height: 90px;">
+    </a>
+  </div>
+
+  <div th:if="${param.error}">
+    <p class="text-danger m-0" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION.message.contains('locked') ?
+    'Tài khoản đã bị khóa': 'Email hoặc mật khẩu không đúng'}"></p>
+  </div>
+  <div th:if="${param.logout}">
+    <p class="text-warning">You have been logged out.</p>
+  </div>
+  <form th:action="@{/login}" method="post" style="max-width: 350px; margin: 0 auto; padding-top: 20px">
+    <div class="border border-secondary rounded p-3">
+      <p>Đăng nhập để truy cập Beauty Shop</p>
+      <p>
+        <input type="email" name="email" class="form-control email" required placeholder="Email">
+      </p>
+      <p>
+      <div class="input-group mb-3"  id="show-hide-password">
+        <input type="password" name="password" class="form-control pass" required minlength="6"
+               maxlength="64" placeholder="Password">
+        <span class="input-group-text"><i class="fa-solid fa-eye-slash"></i></span>
+      </div>
+      </p>
+<!--      <p>-->
+<!--        <input type="checkbox" name="remember-me"/> &nbsp; Remember Me-->
+<!--      </p>-->
+      <p>
+        <input type="submit" value="Login" class="btnn btn btn-primary">
+      </p>
+      <p>
+        <a th:href="@{/register}">Don't have an account? Create one</a>
+      </p>
+      <p>
+        <a th:href="@{/forgot-password/email}">Forget password</a>
+      </p>
+    </div>
+  </form>
+</div>
+<script type="text/javascript" th:src="@{/js/show_hide_password.js}"></script>
+<script>
+</script>
+</body>
+</html>

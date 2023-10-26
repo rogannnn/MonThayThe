@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="modal" class="modal fade text-center" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalTitle">Warning</h4>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <span id="modalBody"></span>
+            </div>
+
+            <div class="modal-footer">
+                <button id="closeModal" type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div th:fragment="modalOrderStatus" class="modal fade text-center" id="modalOrderStatus">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalStatusTitle">Edit Order Status</h4>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <label class="col-form-label">Name:</label>
+                <input class="form-control" id="order-status-name" type="text">
+            </div>
+
+            <div class="modal-footer">
+                <button id="submitStatus" type="button" class="btn btn-primary">Lưu</button>
+                <button id="closeStatusModal" type="button" class="btn btn-danger" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="modalNewOrderStatus" class="modal fade text-center" id="modalNewOrderStatus">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalNewStatusTitle">Add New Order Status</h4>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label class="col-form-label">Name:</label>
+                <input class="form-control" id="new-order-status-name" type="text">
+            </div>
+
+            <div class="modal-footer">
+                <button id="submitNewStatus" type="button" class="btn btn-primary">Thêm mới</button>
+                <button id="closeNewStatusModal" type="button" class="btn btn-danger" data-bs-dismiss="modal">Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:fragment="addressModal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalNewAddressTitle">Thêm mới địa chỉ</h4>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <span id="modalNewAddressBody">
+                     <form method="post" style="max-width: 500px; margin: 0 auto"
+                           enctype="multipart/form-data" id="addressForm"
+                            class="mb-3">
+                            <input type="hidden" id="addressId"/>
+                            <div class="border border-secondary rounded p-3">
+
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Họ tên:</label>
+                                    <div class="col-sm-9">
+                                     <input type="text" class="form-control" required minlength="2"
+                                            maxlength="128"/>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">SĐT:</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" required minlength="10"
+                                               maxlength="20"/>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Địa chỉ</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" required minlength="6"
+                                               maxlength="45"/>
+                                    </div>
+                                </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label">Tỉnh/TP</label>
+                                        <div class="col-sm-9">
+                                            <select id="inputProvince" class="form-control">
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label">Quận/Huyện</label>
+                                        <div class="col-sm-9">
+                                            <select id="inputDistrict" class="form-control">>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label">Xã/Phường</label>
+                                        <div class="col-sm-9">
+                                            <select id="inputWard" class="form-control" >
+                                            </select>
+                                        </div>
+                                    </div>
+                                <div class="text-center pt-3">
+                                    <input type="submit" value="Thêm mới" class="btn btn-primary">
+                                    <input type="button" value="Hủy" data-bs-dismiss="modal"  class="btn btn-secondary" id="buttonCancelAddresss">
+                                </div>
+                            </div>
+
+                        </form>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div th:fragment="modalReview" class="modal fade text-center" id="myReviewModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalReviewTitle">Review</h4>
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+        <span id="modalReviewBody">
+            <div class="rating">
+                <i class="fas fa-star star" data-rating="1"></i>
+                <i class="fas fa-star star" data-rating="2"></i>
+                <i class="fas fa-star star" data-rating="3"></i>
+                <i class="fas fa-star star" data-rating="4"></i>
+                <i class="fas fa-star star" data-rating="5"></i>
+            </div>
+            <textarea class="form-control mt-3" id="review-comment" rows="4" placeholder="Viết đánh giá sản phẩm..."
+                      required></textarea>
+        </span>
+            </div>
+
+            <div class="modal-footer">
+                <button id="submitReview" type="button" class="btn btn-primary btn-confirm-address">Đánh giá</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

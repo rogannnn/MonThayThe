@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org"
+       xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="en">
+<head th:replace="~{fragments/main_fragment.html::page_head('Verify-OTP')}"/>
+
+<body style="padding-top: 0px">
+<div class="container-fluid">
+    <nav th:replace="~{fragments/main_fragment.html :: navbar}"></nav>
+    <div class="pt-2 mt-2">
+            <h2>Forget Password | OTP</h2>
+    </div>
+    <form id="form" method="post" class="form"
+          style="width: 500px; height: 300px; margin: 0 auto">
+        <div class="border border-secondary rounded p-3 mt-4">
+            <div class="form-group row mt-4">
+                <div class="text-center">
+                    <h6>Please enter the one time password we just sent to the email:
+                    <span class="email">[[${email}]]</span>
+                    </h6>
+                </div>
+                <div class="showMessage" style="display: none; width: 100%;">
+                    <div class="alert alert-danger  d-flex" style="width: 100%;justify-content: space-around; ">
+                        <h6 class="text-center message1"></h6>
+                    </div>
+                </div>
+                <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2">
+                    <div class="form-group row mt-2">
+                        <label class="col-sm-2 col-form-label">OTP:</label>
+                        <div class="col-sm-10">
+                            <input type="text" id="otpCode" class="form-control" required minlength="6" maxlength="6" autofocus/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-2">
+                <input type="submit" value="Validate" class="btn btn-primary">
+            </div>
+        </div>
+
+        <a href="/" id="reSendOTP">Resend OTP</a>
+    </form>
+
+    <footer th:replace="~{fragments/main_fragment.html:: footer}"></footer>
+
+
+</div>
+<script>
+    $(document).ready(function() {
+        $('#form').submit(function (event) {
+            event.preventDefault();
+            otpString = $('#otpCode').val();
+            $('#otpInput').val(otpString);
+
+            $.ajax({
+                url : '/forgot-password/validateOTP',
+                method:'POST',
+                data: {
+                    otp:otpString
+                }
+            }).done(function (response) {
+                if(response.includes("success")){
+                    window.location.href = "/forgot-password/change_password";
+                }else if (response.includes("expired")){
+                    $('.message1').text("The OTP code has expired");
+                    $(".showMessage").show();
+                }else if (response.includes("incorrect")){
+                    $('.message1').text("The OTP code are incorrect");
+                    $(".showMessage").show();
+                }
+            }).fail(function () {
+                alert("Error occurred while validating the otp!");
+            })
+        });
+        $('#reSendOTP').click(function (event) {
+            event.preventDefault();
+            var email = $('.email').text();
+            alert(email);
+            url = '/forgot-password/generateOTP';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data:{
+                    email:email
+                }
+            }).done(function (response) {
+                if(response.includes("success")){
+                    alert("Resend otp code successfully")
+                }else{
+                    alert("Error while resending OTP code");
+                }
+            }).fail(function () {
+                alert("Error occurred while resending the request to the sever!");
+            })
+        })
+    });
+</script>
+<script type="text/javascript" th:src="@{/js/show_dropdown_user.js}"></script>
+
+</body>
+</html>

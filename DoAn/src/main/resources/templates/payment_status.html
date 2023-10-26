@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head th:replace="~{fragments/main_fragment.html :: page_head('KẾT QUẢ THANH TOÁN')}"></head>
+<body>
+
+<!--Begin display -->
+<section>
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-12 p-4"  style="background-color: #fff;">
+                <h3>Kết quả thanh toán</h3>
+
+                <div class="table-cart mt-3" style="border: 1px solid #dddcdc; border-radius: 5px;">
+
+                    <div class="table-responsive" style="padding: 15px">
+                        <div class="form-group">
+                            <label >Mã giao dịch thanh toán:</label>
+                            <label>VNB 144343553</label>
+                        </div>
+                        <div class="form-group">
+                            <label >Số tiền:</label>
+                            <label>[[${vnp_Amount}]]</label>
+                        </div>
+                        <div class="form-group">
+                            <label >Mô tả giao dịch:</label>
+                            <label>[[${orDerInfo}]]</label>
+                        </div>
+                        <div class="form-group">
+                            <label >Mã lỗi thanh toán:</label>
+                            <label>[[${vnp_ResponseCode}]]</label>
+                        </div>
+                        <div class="form-group">
+                            <label >Mã giao dịch tại CTT VNPAY-QR:</label>
+                            <label>[[${vnp_TransactionNo}]]</label>
+                        </div>
+                        <div class="form-group">
+                            <label >Mã ngân hàng thanh toán:</label>
+                            <label>[[${BankCode}]]</label>
+                        </div>
+                        <div class="form-group">
+                            <label >Thời gian thanh toán:</label>
+                            <label>[[${PayDate}]]</label>
+                        </div>
+                        <div class="form-group">
+                            <label >Tình trạng giao dịch:</label>
+                            <label th:if="${vnp_TransactionStatus == '00'}">Thành công</label>
+                            <label th:if="${vnp_TransactionStatus != '00'}">Không thành công</label>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-12"  style="background-color: #fff; padding-top: 75px;">
+                <h4 style="color: red;">Thanh toán thành công</h4>
+                <div class="total-price py-3" style="border-top: 1px solid #EBEBEB;">
+                    <span>Tổng tiền: </span>
+                    <span class="text-danger h5">3,200,000 đ</span>
+                </div>
+                <button class="check_out btn btn-danger p-3" type="button">
+                    <a style="text-decoration: none; color: white" th:href="/order"> Trở về</a>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

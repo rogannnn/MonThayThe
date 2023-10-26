@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/main_fragment.html::page_head('Order Status')}" />
+<head>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/sidebar.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/dashboard.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/list.css}"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="page-container" class="d-flex flex-column flex-root">
+  <div class="d-flex flex-row flex-column-fluid page">
+    <div th:replace="~{fragments/sidebar_fragment :: sidebar('orderstatus', 'orderstatus_all')}"></div>
+    <div class="d-flex flex-column wrapper">
+      <div th:replace="~{fragments/header_fragment :: header}"></div>
+      <div class="content">
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-5">
+          <h1 class="title">Trạng thái Đơn Hàng</h1>
+          <a class="orderstatus-add" href="#">
+            <button class="btn btn-primary d-flex align-items-center">
+              <i class="fas fa-plus" style="margin-right: 0.5rem"></i>
+              <span>Trạng thái mới</span>
+            </button>
+          </a>
+        </div>
+        <section class="list-table">
+
+          <div class="list-table-content">
+            <div class="table-responsive">
+              <table class="table table-borderless table-striped table-vcenter">
+                <thead>
+                <tr>
+                  <th th:replace="~{fragments :: column_link('id', 'ID','orderstatus')}"></th>
+                  <th th:replace="~{fragments :: column_link('name', 'Tên','orderstatus')}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="orderStatus : ${listOrderStatus}">
+                  <td class="text-center fs-sm">
+                    <a>
+                      <strong>[[${orderStatus.id}]]</strong>
+                    </a>
+                  </td>
+                  <td class="d-none d-md-table-cell fs-sm">
+                    <strong>[[${orderStatus.name}]]</strong>
+                  </td>
+                  <td class="text-center fs-sm">
+                    <th:block>
+                      <a class="btn btn-sm btn-alt-secondary btnEditOrderStatus" href="#"  th:data-order-status-id="${orderStatus.id}" th:data-order-status-name="${orderStatus.name}">
+                        <i class="fas fa-pencil-alt"></i>                                                </a>
+                      <a class="btn btn-sm btn-alt-danger" th:id="'link-delete-' + ${orderStatus.id}" th:onclick="'showConfirmDelete(event,' + ${orderStatus.id} + ')'" entity="orderstatus" th:href="@{'/admin/orderstatus/delete/' + ${orderStatus.id}}" >
+                        <i class="fa fa-fw fa-times text-danger"></i>
+                      </a>
+                    </th:block>
+
+                  </td>
+                </tr>
+
+                </tbody>
+              </table>
+              <div class="empty d-flex flex-column align-items-center" th:if="${#lists.isEmpty(listOrderStatus)}">
+                <div class="empty-image d-flex justify-content-center align-items-center" style="margin-bottom: 10px">
+                  <img th:src="@{/images/empty-icon.svg}" style="height: 200px"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div th:replace="~{fragments :: pagination('orderstatus')}"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:replace="~{modals/modal.html :: modalOrderStatus}"></div>
+<div th:replace="~{modals/modal.html :: modalNewOrderStatus}"></div>
+
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/index.js}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+
+
+<script th:inline="javascript">
+  $(document).ready(function() {
+    let messageError = [[${messageError}]];
+    let messageSuccess = [[${messageSuccess}]];
+    let statusValue = [[${status}]];
+
+
+    if(messageSuccess) {
+      Swal.fire({
+        title: '',
+        text: messageSuccess,
+        icon: 'success',
+        confirmButtonColor: '#3085d6'
+      })
+    }
+
+    if(messageError ) {
+      Swal.fire({
+        title: '',
+        text: messageError,
+        icon: 'error'
+      })
+    }
+    $("#status option[value =" +  statusValue+ "]").prop("selected", "selected")
+
+
+
+    $('.btnEditOrderStatus').on('click', function (e) {
+      e.preventDefault();
+      $("#modalOrderStatus").modal('show');
+      orderStatusId = $(this).data("order-status-id");
+      orderStatusName = $(this).data("order-status-name");
+      $('#order-status-name').val(orderStatusName);
+      $("#modalOrderStatus").modal('show');
+    })
+
+    $('.orderstatus-add').on('click', function (e) {
+      e.preventDefault();
+      $("#modalNewOrderStatus").modal('show');
+    })
+
+    $('#submitNewStatus').on('click',function () {
+      name = $('#new-order-status-name').val();
+
+      $.ajax({
+        method: 'POST',
+        url : '/admin/orderstatus/new',
+        data: {
+          name : name
+        }
+      }).done(function (respones) {
+        if(respones.includes("success")){
+          window.location.href = '/admin/orderstatus';
+        }else {
+          Swal.fire({
+            title: '',
+            text: "Oops, something went wrong",
+            icon: 'error',
+            confirmButtonColor: '#3085d6'
+          })
+        }
+      }).fail(function () {
+        Swal.fire({
+          title: '',
+          text: "An error occurred while sending the request",
+          icon: 'error',
+          confirmButtonColor: '#3085d6'
+        })
+      })
+    })
+
+    $('#submitStatus').on('click',function () {
+      name = $('#order-status-name').val();
+
+      $.ajax({
+        method: 'POST',
+        url : '/admin/orderstatus/edit/' + orderStatusId,
+        data: {
+          name : name
+        }
+      }).done(function (respones) {
+        if(respones.includes("success")){
+          window.location.href = '/admin/orderstatus';
+        }else {
+          Swal.fire({
+            title: '',
+            text: "Oops, something went wrong",
+            icon: 'error',
+            confirmButtonColor: '#3085d6'
+          })
+        }
+      }).fail(function () {
+        Swal.fire({
+          title: '',
+          text: "An error occurred while sending the request",
+          icon: 'error',
+          confirmButtonColor: '#3085d6'
+        })
+      })
+    })
+  })
+
+
+
+
+</script>
+
+<script>
+  $(document).ready({
+
+  })
+</script>
+
+
+</body>
+
+
+</html>

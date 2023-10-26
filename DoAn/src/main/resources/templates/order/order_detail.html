@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head th:replace="~{fragments/main_fragment.html ::page_head('Chi tiết đơn hàng')}"/>
+<body  style="background-color: #f5f5f5">
+<div class="container-fluid pb-5">
+  <nav th:replace="~{fragments/main_fragment.html :: navbar}"></nav>
+  <div class="m-4">
+    <h3>Chi tiết đơn hàng</h3>
+  </div>
+  <div class="container pt-2">
+    <div class="order-detail">
+      <div class="container mt-2 my-0" style="background-color: #fff">
+        <div class="row py-2 d-flex align-items-center justify-content-end">
+          <h6 class="mb-0 pr-3 text-primary"> Order ID: [[${order.id}]] |
+            [[${order.orderStatus.name}]]</h6>
+          <h6 class="mb-0 pr-3 text-primary">Ngày đặt : [[${order.date}]]</h6>
+        </div>
+
+        <div class="list-product">
+          <div th:each="orderDetail : ${order.orderDetails}" class="row  py-2" style="border-top: 1px solid #dedede">
+            <a th:href="@{'/product/' + ${orderDetail.product.id}}" class="col-md-2 d-flex justify-content-center">
+                <img  th:src="@{${orderDetail.product.getImageProducts()[0].getPath()}}"  style="width: 100px;height: 100px" alt="">
+            </a>
+            <div class="col-md-4">
+              <a th:href="@{'/product/' + ${orderDetail.product.id}}" class="text-decoration-none text-black">
+                <h6>[[${orderDetail.product.name}]]</h6>
+              </a>
+              <h6>x[[${orderDetail.quantity}]]</h6>
+            </div>
+            <div class="col-md-1 offset-md-5" >
+              <div th:text="${#numbers.formatDecimal(orderDetail.unitPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+              </div>
+              <div  th:if="${order.getOrderStatus().getId() == 4}">
+                <button class="btn btn-review btn-outline-danger" style="font-size: 10px;"
+                        th:data-order-detail-id="${orderDetail.product.id}">
+                  Đánh giá
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container mt-0 mb-4" style="background-color: #fff">
+        <div class="row py-2" style="border-top: 1px solid #dedede">
+          <div class="col-md-3 offset-md-9  d-flex justify-content-center">
+            <h5 class="text-primary" th:text="${'Tổng tiền: ' + #numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'"></h5>
+          </div>
+        </div>
+        <div class="row py-2">
+          <div class="col md-2 offset-md-10 d-flex justify-content-center">
+            <button class=" btn btn-danger py-2" style="width: 80%;">Repurchase</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div th:replace="~{modals/modal.html :: modal}"></div>
+<div th:replace="~{modals/modal.html:: modalReview}"></div>
+<!--footer-->
+<footer th:replace="~{fragments/main_fragment.html :: footer}"></footer><!-- Footer -->
+</body>
+<script>
+
+  $(document).ready(function () {
+    let clickedRating = 0;
+    let productId;
+    $('.btn-review').on("click", function () {
+      productId = $(this).data("order-detail-id");
+      $("#myReviewModal").modal('show');
+    });
+
+    
+    $(".star").click(function() {
+      clickedRating = parseInt($(this).data("rating"));
+
+      $(".star").each(function(index) {
+        if (index < clickedRating) {
+          $(this).addClass("active");
+        } else {
+          $(this).removeClass("active");
+        }
+      });
+    });
+    
+    $('#submitReview').on("click",function () {
+      let comment = $('#review-comment').val();
+      if(clickedRating == 0){
+        alert("Vui lòng chọn số sao");
+      }else if (comment.trim() == ""){
+        alert("Vui lòng viết đánh giá");
+      }else {
+        $.ajax({
+          type: "POST",
+          url : '/review/new',
+          data:{
+            productId: productId,
+            comment: comment,
+            vote: clickedRating
+          }
+        }).done(function (response) {
+          if(response.includes("success")){
+            alert("Bình luận thành công");
+            $("#myReviewModal").modal('hide');
+          }
+          else {
+            alert("Opps");
+            $("#myReviewModal").modal('hide');
+          }
+        }).fail(function () {
+          alert("Sending request error");
+          $("#myReviewModal").modal('hide');
+        })
+      }
+    })
+
+    $("#myReviewModal").on("hidden.bs.modal", function() {
+      $('#review-comment').val("");
+      clickedRating = 0;
+      $(".star").each(function(index){
+        $(this).removeClass('active');
+      });
+    });
+  })
+</script>
+<script type="text/javascript" th:src="@{/js/show_dropdown_user.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+
+</html>

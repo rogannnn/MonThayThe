@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org"
+       xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset = UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+    <title>Change Password - Email</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div th:replace="~{navigation.html :: menu}"></div>
+    <div class="pt-5 mt-5">
+            <h3>Forget Password | Email</h3>
+    </div>
+    <div class="alert alert-danger" id="alert" style="display: none">
+        <h6 class="text-center custom-notify"></h6>
+    </div>
+    <form id="form" method="get" style="width: 500px; height: 350px; margin: 0 auto">
+        <div class="border border-secondary rounded p-3 mt-4" >
+            <div class="form-group row mt-4">
+                <label class="col-sm-4 col-form-label">Type your email:</label>
+                <div class="col-sm-8">
+                    <input type="email" id="email" class="form-control" th:name="email" required minlength="9" maxlength="128" autofocus/>
+                </div>
+            </div>
+            <div class="text-center">
+                <input type="submit" value="Submit" class="btn btn-primary">
+            </div>
+        </div>
+    </form>
+
+    <footer class="py-5 bg-dark m-0 fixed-bottom">
+        <div class="container"><p class="m-0 text-center text-white">Copyright &copy; My Website 2023</p></div>
+    </footer>
+
+</div>
+
+<script>
+    $(document).ready(function (){
+        $('#form').submit(function (event) {
+            event.preventDefault();
+            var email = $('#email').val();
+            url = '/Shopme/forgot_password/generateOTP';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data:{
+                    email:email
+                }
+            }).done(function (response) {
+                if(response.includes("success")){
+                    window.location.href = "/Shopme/forgot_password/otp";
+                }else if (response.includes("found")){
+                    $('.custom-notify').text("Không tìm thấy tài khoản trùng với email: " + email);
+                    $("#alert").show();
+                }else if (response.includes("mail")){
+                    alert("Error while sending OTP code");
+                }
+            }).fail(function () {
+                alert("Error occurred while sending the request to the sever!");
+            })
+        })
+    })
+</script>
+</body>
+</html>

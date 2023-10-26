@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết sản phẩm</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+  <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+  <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+
+</head>
+<body>
+<nav th:replace="~{fragments/main_fragment.html :: navbar}"></nav>
+<section style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb" class="pt-2">
+  <div class="container">
+    <ol class="breadcrumb" style="margin: 10px;">
+      <li class="breadcrumb-item"><a th:href="@{/}" style="color: black; :hover{color: blue !important;}" class="text-decoration-none" href="#">Trang chủ</a></li>
+      <li class="breadcrumb-item"><a style="color: black;"  class="text-decoration-none" href="#">All</a></li>
+      <li style="color: #94e3df;" class="breadcrumb-item active" aria-current="page">[[${product.name}]]</li>
+    </ol>
+  </div>
+</section>
+
+<!-- product  -->
+<section style="background-color: #fff;">
+  <div class="container">
+    <div class="row py-5">
+      <div class="col-lg-4 col-md-4 col-sm-12 " style="border: 1px solid #EBEBEB;">
+        <img th:src="@{${product.getImageProducts()[0].getPath()}}" alt="" class="w-100 img-product-view">
+        <div class="small-img-row">
+          <div class="small-img-col" th:each="image : ${product.getImageProducts()}">
+            <img class=" small-img" th:src="@{${image.getPath()}}"  width="100%" alt="">
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 col-md-5 col-sm-12 ps-4">
+        <h4 class="font-weight-bolder" style="font-weight: 700;">[[${product.name}]]</h4>
+        <div class="detail py-2">
+          <div class="brand-detail">
+            <span class="text-muted">Thương hiệu: </span> [[${product.brand.name}]]
+          </div>
+          <div class="status-detail py-2" style="border-bottom: solid 1px #ebebeb;">
+            <span class="text-muted">Đã bán: </span>[[${product.soldQuantity}]]
+          </div>
+          <div class="status-detail py-2" style="border-bottom: solid 1px #ebebeb;">
+            <span class="text-muted">Số lượng còn: </span>
+            <span class="text-muted" th:if="${product.inStock > 0}">[[${product.inStock}]]</span>
+            <span class="text-danger font-weight-bold" th:if="${product.inStock == 0}">Hết hàng</span>
+          </div>
+          <div class="price-box py-2">
+            <span style="font-weight: 600;" class="h4 text-danger"
+                  th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></span>
+            <span class="text-danger h4" style="padding-right: 10px;">đ</span>
+
+
+          </div>
+<!--          <div class="product-sumary">-->
+<!--            <div class="lead fst-italic">Mô tả đang cập nhật</div>-->
+<!--          </div>-->
+          <div class="d-flex mt-3 align-items-center">
+<!--            <input type="number">-->
+<!--            <button  type="submit" class="btn btn-outline-danger btn-add-to-card">-->
+<!--              Thêm vào giỏ hàng-->
+<!--            </button>-->
+            <div class="d-flex align-items-center" th:replace="~{fragments/quantity_control.html :: quantity_control(1, ${product.id})}"></div>
+            <!--          <input class="form-control text-center me-3" id="inputQuantity" type="num" value="1" style="max-width: 3rem" />-->
+            <button class="btn btn-outline-danger flex-shrink-0 mx-2" type="button" id="buttonAddToCart" th:disabled="${product.getInStock() == 0}">
+              <i class="fa-solid fa-cart-shopping"></i>
+              Add to cart
+            </button>
+          </div>
+
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-3 col-sm-12">
+        <h5>Sản phẩm tương tự</h5>
+        <div th:each="product: ${listProduct}" class="similar-product pt-3 d-flex" style="border-bottom: 1px solid #EBEBEB;">
+          <a th:href="@{'/product/' + ${product.getId()}}">
+            <img style="width: 98px; height: 98px;box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;" th:src="@{${product.getImageProducts()[0].getPath()}}"  alt="">
+          </a>
+          <div  class="ps-3">
+            <a href="" class="product-name text-decoration-none text-dark" style="font-size: 12px; text-align: start; white-space: pre-line;">[[${product.name}]]</a>
+            <span th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')} + 'đ'" class="product-price text-danger d-block mt-2" style="font-weight: 700;"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <ul class="nav nav-tabs" style="border-bottom: none;">
+      <li class="nav-item">
+        <a id="product-description" class="a-tabs nav-link active" aria-current="page" href="#">Thông tin</a>
+      </li>
+      <li class="nav-item">
+        <a id="shopping-guide" class="a-tabs nav-link" href="#">Hướng dẫn mua hàng</a>
+      </li>
+      <li class="nav-item">
+        <a id="product-rating" class="a-tabs nav-link" href="#">Đánh giá</a>
+      </li>
+    </ul>
+    <div class="tab-product-description py-3" th:utext="${product.description}">
+    </div>
+    <div class="shopping-guide-content py-3 d-none">
+      Nội dung tùy chỉnh viết ở đây
+    </div>
+    <div class="tab-review py-3 d-none">
+      <div class="container">
+        <div class="row pt-3">
+          <div class="col-lg-8 col-md-4">
+            <div th:unless="${reviewList.size() > 0}" class="tab-review-result1 pb-2 mb-2">
+                Sản phẩm chưa có đánh giá nào!
+            </div>
+            <div th:if="${reviewList.size() > 0}" class="tab-review-result d-flex pb-2 mb-2">
+              <div class="tab-review-result-avg">
+                <span class="h2 font-weight-bolder">[[${averageRating}]]</span>
+              </div>
+              <div class="total-review">
+                <div class="total-review-span" style="padding-left: 32px;">
+                  [[${totalComment}]] đánh giá
+                </div>
+                <ul class="list-star">
+                  <th:block th:each="star: ${#numbers.sequence(0, averageRating - 1)}">
+                    <i class="fas fa-star" style="color: #f7bc3d;"></i>
+                  </th:block>
+                  <th:block th:if="${(5 - averageRating) != 0}" th:each="star: ${#numbers.sequence(0, 5 - averageRating - 1)}">
+                    <i class="fas fa-star"></i>
+                  </th:block>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-review-list" th:if="${reviewList.size() > 0}" >
+              <div class="review-list-item d-flex" th:each="review : ${reviewList}" style="border-bottom: 1px solid #f5f5f5;">
+                <div class="avatar-user bg-white" style="width: 40px;">
+                  <img style="width: 50px; height: 50px;" src="https://res.cloudinary.com/dmriwkfll/image/upload/v1650937333/user_tz4efy.png"/>
+                </div>
+                <div class="comment-main ps-4">
+                  <div class="user-name text-capitalize">[[${review.user.getHovaTen()}]]</div>
+                  <div class="comment-time text-capitalize" th:text="${#temporals.format(review.date, 'dd/MM/yyyy HH:mm')}" ></div>
+                  <div class="d-flex tab-review-comment-stars" >
+                    <ul class="d-flex text-decoration-none p-0">
+                      <th:block th:each="star: ${#numbers.sequence(0, review.vote - 1)}">
+                        <i class="fas fa-star" style="color: #f7bc3d;"></i>
+                      </th:block>
+                      <th:block th:if="${(5 - review.vote) != 0}" th:each="star: ${#numbers.sequence(0, 5 - review.vote - 1)}">
+                        <i class="fas fa-star"></i>
+                      </th:block>
+
+                    </ul>
+                  </div>
+                  <div class="comment-text mb-3">
+                    <span>[[${review.comment}]]</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<div class="trend_product_title text-center py-3 position-relative" style="background-color: #fff;">
+  <span>
+    <img th:src="@{/images/flower.webp}" alt="">
+  </span>
+  <div class="py-2" style="font-size: 34px;">Có thể bạn thích</div>
+  <span class="h6 lead destitle">Sản phẩm được khách hàng lựa chọn thêm</span>
+</div>
+
+<div class="container-fluid pt-4 pb-2" style="background-color: #fff;">
+  <div class="row">
+    <div class="col-lg-3 col-md-3 col-6" th:each="product : ${listProduct}">
+      <div class="item px-2">
+        <div class="card border-0">
+          <a th:href="@{'/product/' + ${product.getId()}}" class="text-decoration-none">
+            <img th:src="@{${product.getImageProducts()[0].getPath()}}" alt="" class="card-img-top">
+            <div class="card-body">
+              <h6 class="text-truncate text-dark">[[${product.name}]]</h6>
+              <div class="price d-flex justify-content-center">
+                <span class="new_price text-danger h4 "
+                      th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></span>
+                <span class="text-danger h4" style="padding-right: 10px;">đ</span>
+              </div>
+            </div>
+          </a>
+          <div class="div_add_to_card d-flex justify-content-center align-items-center">
+            <button style="border: 2px solid red; border-radius: 20px; background-color: white;" class="add_to_card mb-3 py-1 px-3 text-danger fw-bold">
+              <a style="text-decoration: none; color: red" th:href="@{'/product/' + ${product.getId()}}">Xem chi tiết</a>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Footer -->
+<footer th:replace="~{fragments/main_fragment.html :: footer}"></footer><!-- Footer -->
+<div th:replace="~{modals/modal.html::modal}">Modal Dialog</div>
+<script>
+  var shopping_guide = document.querySelector('#shopping-guide');
+  var product_info = document.querySelector('#product-description');
+  var product_rating = document.querySelector('#product-rating')
+  var tab_product_description = document.querySelector('.tab-product-description');
+  var shopping_guide_content = document.querySelector('.shopping-guide-content');
+  var tab_review = document.querySelector('.tab-review');
+
+
+  var $img_product = $('.img-product-view');
+  var $small_img = $('.small-img');
+
+  $small_img.click(function() {
+    var clickedSrc = $(this).attr('src');
+
+    $img_product.attr('src', clickedSrc);
+  });
+
+
+  shopping_guide.onclick = function(e) {
+    e.preventDefault();
+    tab_product_description.classList.add('d-none');
+    tab_review.classList.add('d-none');
+    shopping_guide_content.classList.remove('d-none');
+    // tab
+    product_info.classList.remove('active');
+    product_rating.classList.remove('active');
+    shopping_guide.classList.add('active');
+  };
+
+  product_info.onclick = function(e) {
+    e.preventDefault();
+    tab_product_description.classList.remove('d-none');
+    tab_review.classList.add('d-none');
+    shopping_guide_content.classList.add('d-none');
+    // tab
+    product_info.classList.add('active');
+    product_rating.classList.remove('active');
+    shopping_guide.classList.remove('active');
+  };
+
+  product_rating.onclick = function(e) {
+    e.preventDefault();
+
+    tab_product_description.classList.add('d-none');
+    tab_review.classList.remove('d-none');
+    shopping_guide_content.classList.add('d-none');
+    // tab
+    product_info.classList.remove('active');
+    product_rating.classList.add('active');
+    shopping_guide.classList.remove('active');
+  };
+
+</script>
+<script>
+  contextPath = "[[@{/}]]";
+  productId = "[[${product.id}]]";
+  inStock = "[[${product.inStock}]]";
+</script>
+<script type="text/javascript" th:src="@{/js/quantity_control.js}"></script>
+<script type="text/javascript" th:src="@{js/show_dropdown_user.js}"></script>
+<script type="text/javascript" th:src="@{js/add_to_cart.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+<script type="text/javascript" th:src="@{/js/NOTIFY.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+</body>
+</html>

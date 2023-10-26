@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/main_fragment.html::page_head('Statistical')}" />
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sidebar.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/dashboard.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/add_form.css}"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+<div id="page-container" class="d-flex flex-column flex-root">
+    <div class="d-flex flex-row flex-column-fluid page">
+        <div th:replace="~{fragments/sidebar_fragment :: sidebar('statistical', 'statistical_all')}"></div>
+        <div class="d-flex flex-column wrapper">
+            <div th:replace="~{fragments/header_fragment :: header}"></div>
+            <div class="content">
+
+                <section class="form-container">
+                    <div class="form-container-header d-flex align-items-center justify-content-between">
+                        <h5 class="title">Thống kê top sản phẩm bán chạy</h5>
+                    </div>
+                    <div class="form-container-content">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-lg-8">
+                                <form th:action="@{/admin/statistical/topsellproduct}"  method="post" id="form-promotion">
+                                    <div class="mb-2">
+                                        <label class="form-label" for="limit" style="width: 70px">Top</label>
+                                        <input type="number" id="limit"  name="limit"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label" for="startDate" style="width: 70px">Từ ngày</label>
+                                        <input style="width: 200px" type="text" id="startDate"  name="startDate" th:value="${#dates.format(startDate, 'dd-MM-yyyy')}" autocomplete="off"
+                                               data-date-format="dd-MM-yyyy"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label" for="finishDate" style="width: 70px">Đến ngày</label>
+                                        <input style="width: 200px" type="text" id="finishDate"  name="finishDate" th:value="${#dates.format(finishDate, 'dd-MM-yyyy')}" autocomplete="off"
+                                               data-date-format="dd-MM-yyyy"/>
+                                    </div>
+                                    <div class="mb-2">
+                                        <button type="submit" class="btn btn-danger auth-btn">Thống kê</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/index.js}" ></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#startDate").datepicker({
+                autoclose: true,
+                todayHighlight: true,
+                endDate: '+0d',
+                format: 'dd-mm-yyyy',
+                orientation: 'top left'
+            }).on('changeDate', function(selected){
+                let minDate = new Date(selected.date.valueOf());
+                $('#finishDate').datepicker('setStartDate', minDate);
+            });
+
+
+
+
+            $("#finishDate").datepicker({
+                autoclose: true,
+                todayHighlight: true,
+                endDate: '+0d',
+                format: 'dd-mm-yyyy',
+                orientation: 'top left'
+            }).on('changeDate', function(selected){
+                let minDate = new Date(selected.date.valueOf());
+                $('#startDate').datepicker('setEndDate', minDate);
+            });
+
+        });
+    </script>
+</body>
+
+</html>

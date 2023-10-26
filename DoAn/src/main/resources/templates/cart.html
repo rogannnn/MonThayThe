@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+  <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+  <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+
+</head>
+<body>
+<nav th:replace="~{fragments/main_fragment.html :: navbar}"></nav>
+<section style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb" class="pt-2">
+  <div class="container">
+    <ol class="breadcrumb" style="margin: 10px;">
+      <li class="breadcrumb-item"><a style="color: black; :hover{color: blue !important;}" class="text-decoration-none" href="#">Trang chủ</a></li>
+      <li style="color: #94e3df;" class="breadcrumb-item active" aria-current="page">Giỏ hàng của bạn</li>
+    </ol>
+  </div>
+</section>
+
+<!-- product  -->
+<section>
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-lg-8 col-md-8 col-12 p-4"  style="background-color: #fff;">
+        <h5>Giỏ hàng</h5>
+        <!-- <span>Không có sản phẩm nào. Quay lại cửa hàng để tiếp tục mua sắm.</span> -->
+        <span sec:authorize="isAuthenticated()">Bạn đang có <b><span class="cart-item-quantity" th:text="${cart_quantity > 0 ? cart_quantity : ' 0 '}"></span> sản phẩm</b> trong giỏ hàng</span>
+        <span sec:authorize="!isAuthenticated()"> <b>Bạn cần đăng nhập để sử dụng giỏ hàng</b></span>
+
+        <div sec:authorize="isAuthenticated()" class="table-cart mt-3" style="border: 1px solid #dddcdc; border-radius: 5px;">
+          <th:block th:each="item,status : ${cartItems}">
+            <div class="row item d-flex p-2" th:with="product = ${item.product}" th:id="'row' + ${status.count}">
+              <div class="item-img col-sm-2 col-lg-2 ">
+                <a th:href="@{'/product/' + ${product.getId()}}" class="text-decoration-none ">
+                  <img class="img-thumbnail" th:src="@{${product.getImageProducts()[0].getPath()}}" alt="">
+                </a>
+                <div class="item-remove">
+                  <a th:href="@{'/cart/delete/' + ${product.id}}" th:rowNumber="${status.count}"
+                     style="font-size: 25px;" class="fa-solid fa-xmark text-decoration-none link-remove"></a>
+                </div>
+              </div>
+              <div class="item-info ps-3 col-sm-5 col-lg-5 border-button">
+                <div class="item-name">
+                  <span class="h6">
+                    <a th:href="@{'/product/' + ${product.getId()}}" class="text-decoration-none">
+                      [[${product.name}]]
+                    </a>
+                  </span>
+                </div>
+                <div class="item-price">
+                  <span> Đơn giá: </span>
+                  <span th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></span>
+                  <span>đ</span>
+                </div>
+                <div class="item-quantity" th:replace="~{fragments/quantity_control.html :: quantity_control(${item.quantity}, ${item.product.id})}"></div>
+              </div>
+              <div class="to-money col-sm-4 col-lg-4 border-button">
+                <span>Tạm tính: </span>
+                <span th:id="'subtotal'+${product.id}" class=" productSubtotal" th:text="${#numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')}"></span>
+                <span>đ</span>
+              </div>
+            </div>
+          </th:block>
+        </div>
+      </div>
+      <div sec:authorize="isAuthenticated()" th:unless="${#lists.isEmpty(cartItems)}" class="col-lg-4 col-md-4 col-12"  style="background-color: #fff; padding-top: 75px;">
+        <h4>Thông tin đơn hàng</h4>
+        <div class="total-price py-3" style="border-top: 1px solid #EBEBEB;">
+          <span>Tổng tiền: </span>
+          <span id="totalAmount" class="text-danger h5"></span>
+        </div>
+        <button class="check_out btn btn-danger p-3" type="button">
+          <a th:href="@{/checkout}" class="text-decoration-none text-white">Đặt hàng</a>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer th:replace="~{fragments/main_fragment.html :: footer}"></footer><!-- Footer -->
+<div th:replace="~{modals/modal.html :: modal}"></div>
+<script>
+  contextPath = "[[@{/}]]";
+</script>
+<script type="text/javascript" th:src="@{/js/quantity_control.js}"></script>
+<script type="text/javascript" th:src="@{/js/cart_control.js}"></script>
+<script type="text/javascript" th:src="@{/js/show_dropdown_user.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+<script type="text/javascript" th:src="@{/js/NOTIFY.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+
+
+
+</body>
+</html>

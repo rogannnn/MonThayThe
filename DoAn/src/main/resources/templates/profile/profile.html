@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
+<head th:replace="~{fragments/main_fragment.html::page_head('Thông tin tài khoản')}"/>
+<body>
+<div class="container-fluid text-center">
+    <nav th:replace="~{fragments/main_fragment.html :: navbar}"></nav>
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-4">
+                    <div class="profile-img d-flex justify-content-center">
+
+                        <div style= "background-image: url('https://res.cloudinary.com/dmriwkfll/image/upload/v1650937333/user_tz4efy.png');
+                         width: 50px; height: 50px; background-position: top center; background-size: cover; border-radius: 50%; margin: 0 auto;">
+                        </div>
+                    </div>
+            </div>
+            <div class="col-lg-9 col-md-9 col-8">
+                <div class="profile-title">
+                    <span class="h4">Thông tin tài khoản</span>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-3">
+            <div class="col-lg-3 col-md-3 col-4">
+                <div class="profile-content profile-option">
+                    <div class="profile-info p-3" style="background-color: white">
+                        <a th:href="@{/profile}" class="text-decoration-none text-black">
+                            <i class="far fa-user"></i>
+                            Thông tin tài khoản
+                        </a>
+                    </div>
+                    <div class="change_password p-3 profile-option">
+                        <a th:href="@{/change-password}" class="text-decoration-none text-black">
+                            <i class="fas fa-lock"></i>
+                            Đổi mật khẩu
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-md-9 col-8">
+                <div class="py-4 px-2 rounded bg-white">
+                    <div class="name py-2 d-flex">
+                        <div class="name-title"  style="width:150px;">Họ và tên</div>
+                        <span class="h6" ps-3>[[${user.firstName}]] [[${user.lastName}]]</span>
+                    </div>
+<!--                    <div class="phone_number py-2 d-flex">-->
+<!--                        <div class="phone_number-title"  style="width:150px;">Số điện thoại</div>-->
+<!--                       01643489722-->
+<!--                    </div>-->
+                    <div class="email py-2 d-flex">
+                        <div class="email-title" style="width:150px;">Email</div>
+                        [[${user.email}]]
+                    </div>
+                    <a th:href="@{/change-info}" class="change-info py-2 d-flex text-decoration-none">
+                        <div class="change-title d-block" style="width: 150px;"></div>
+                        <button class="btn btn-danger text-uppercase">Thay đổi thông tin</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<footer th:replace="~{fragments/main_fragment.html:: footer}"></footer>
+<script type="text/javascript" th:src="@{/js/show_dropdown_user.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,84 @@
+a:hover {
+    color: unset;
+    text-decoration: none;
+}
+
+a {
+    color: unset;
+    text-decoration: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+i {
+    color: white;
+}
+
+.form-valid-feedback {
+    color: #dc3545;
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.badge {
+    color: white;
+    padding: 5px;
+}
+
+body::-webkit-scrollbar {
+    width: 1px;
+}
+
+.main-content {
+    background: radial-gradient(farthest-side ellipse at 10% 0, #333867 20%, #17193b);
+    width: 100%;
+    padding-top: 65px;
+}
+
+
+.swal-text {
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.datepicker.datepicker-dropdown.dropdown-menu.datepicker-orient-left.datepicker-orient-bottom {
+    width: 266px;
+}
+
+.datepicker.datepicker-dropdown.dropdown-menu.datepicker-orient-left.datepicker-orient-bottom table.table-condensed {
+    width: 100%;
+}
+
+
+option[value=""][disabled] {
+    display: none;
+}
+
+a.disabled {
+    pointer-events: none;
+}
+
+body.modal-open {
+    padding-right: 0 !important;
+}
+
+.modal-open .modal::-webkit-scrollbar { width: 8px; height: 3px;}
+.modal-open .modal::-webkit-scrollbar-button {  background-color: #666; }
+.modal-open .modal::-webkit-scrollbar-track {  background-color: #646464;}
+.modal-open .modal::-webkit-scrollbar-track-piece { background-color: #000;}
+.modal-open .modal::-webkit-scrollbar-thumb { height: 50px; background-color: #666; border-radius: 3px;}
+.modal-open .modal::-webkit-scrollbar-corner { background-color: #646464;}
+.modal-open .modal::-webkit-resizer { background-color: #666;}
+
+
+
+body.swal2-shown.swal2-height-auto {
+    padding: 0 !important;
+    overflow: unset !important;
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org"
+       xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset = UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+
+
+    <title>Verify OTP - Shopme</title>
+</head>
+<body style="padding-top: 0px">
+<div class="container-fluid">
+    <div th:replace="~{navigation.html :: menu}"></div>
+    <div class="pt-5 mt-5">
+            <h2>Forget Password | OTP</h2>
+    </div>
+    <form id="form" method="post" class="form"
+          style="width: 500px; height: 350px; margin: 0 auto">
+        <div class="border border-secondary rounded p-3 mt-4">
+            <div class="form-group row mt-4">
+                <div class="text-center">
+                    <h6>Please enter the one time password we just sent to the email:
+                    <span class="email">[[${email}]]</span>
+                    </h6>
+                </div>
+                <div class="showMessage" style="display: none; width: 100%;">
+                    <div class="alert alert-danger  d-flex" style="width: 100%;justify-content: space-around; ">
+                        <h6 class="text-center message1"></h6>
+                    </div>
+                </div>
+                <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2">
+                    <input id = "first" type="text" class="m-2 text-center form-control rounded" maxlength="1" autofocus>
+                    <input id = "second" type="text" class="m-2 text-center form-control rounded" maxlength="1">
+                    <input id = "third" type="text" class="m-2 text-center form-control rounded" maxlength="1">
+                    <input id = "forth" type="text" class="m-2 text-center form-control rounded" maxlength="1">
+                    <input id = "fifth" type="text" class="m-2 text-center form-control rounded" maxlength="1">
+                    <input id = "sixth" type="text" class="m-2 text-center form-control rounded" maxlength="1">
+                </div>
+                <input id="otpInput" type="text" th:name="otp" style="display: none">
+            </div>
+            <div class="text-center">
+                <input type="submit" value="Validate" class="btn btn-primary">
+            </div>
+        </div>
+
+        <a href="/" id="reSendOTP">Resend OTP</a>
+    </form>
+
+    <footer class="py-5 bg-dark m-0 fixed-bottom">
+        <div class="container"><p class="m-0 text-center text-white">Copyright &copy; My Website 2023</p></div>
+    </footer>
+
+</div>
+<script>
+    $(document).ready(function() {
+        $('#form').submit(function (event) {
+            event.preventDefault();
+
+            // Lấy giá trị từ các input
+            const firstValue = $('#first').val();
+            const secondValue = $('#second').val();
+            const thirdValue = $('#third').val();
+            const forthValue = $('#forth').val();
+            const fifthValue = $('#fifth').val();
+            const sixthValue = $('#sixth').val();
+
+            const otpString = firstValue + secondValue + thirdValue + forthValue + fifthValue + sixthValue;
+            $('#otpInput').val(otpString);
+
+            $.ajax({
+                url : '/Shopme/forgot_password/validateOTP',
+                method:'POST',
+                data: {
+                    otp:otpString
+                }
+            }).done(function (response) {
+                if(response.includes("success")){
+                    window.location.href = "/Shopme/forgot_password/change_password";
+                }else if (response.includes("expired")){
+                    $('.message1').text("The OTP code has expired");
+                    $(".showMessage").show();
+                }else if (response.includes("incorrect")){
+                    $('.message1').text("The OTP code are incorrect");
+                    $(".showMessage").show();
+                }
+            }).fail(function () {
+                alert("Error occurred while validating the otp!");
+            })
+        });
+        $('#reSendOTP').click(function (event) {
+            event.preventDefault();
+            var email = $('.email').text();
+            alert(email);
+            url = '/Shopme/forgot_password/generateOTP';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data:{
+                    email:email
+                }
+            }).done(function (response) {
+                if(response.includes("success")){
+                    alert("Resend otp code successfully")
+                }else{
+                    alert("Error while resending OTP code");
+                }
+            }).fail(function () {
+                alert("Error occurred while resending the request to the sever!");
+            })
+        })
+    });
+</script>
+<script type="text/javascript" th:src="@{/js/otp_verify.js}"></script>
+</body>
+</html>

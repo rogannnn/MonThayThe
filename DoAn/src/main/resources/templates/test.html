@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+<form th:action="@{/test}" method="POST">
+  <input type="date" id="startDate"  name="startDate" th:value="${#dates.format(startDate,'dd-MM-yyyy')}"/>
+  <input type="date" id="finishDate"  name="finishDate"  th:value="${#dates.format(finishDate,'dd-MM-yyyy')}" style="margin-top: 20px"/>
+    <button type="submit">Submit</button>
+</form>
+<div id="hehe">
+    [[${result}]]
+</div>
+
+</body>
+</html>

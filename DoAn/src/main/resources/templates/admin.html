@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head th:replace="~{fragments/main_fragment.html::page_head('Admin Page')}" />
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sidebar.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/dashboard.css}"/>
+</head>
+<body>
+<div id="page-container" class="d-flex flex-column flex-root">
+    <div class="d-flex flex-row flex-column-fluid page">
+        <div th:replace="~{fragments/sidebar_fragment :: sidebar('dashboard','')}"></div>
+        <div class="d-flex flex-column wrapper">
+            <div th:replace="~{fragments/header_fragment :: header}"></div>
+            <div class="content">
+                <h1 class="title">Dashboard</h1>
+                <h2 class="sub-title">Welcome <span style="color: #4c78dd;text-transform: capitalize" th:text="${#authentication.getPrincipal().getFirstName()}"></span>, everything looks great.</h2>
+                <section class="statistical row">
+                    <div class="col statistical-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column justify-content-center">
+                            <div class="number" th:text="${countOrderByWeek}"></div>
+                            <div class="text-description">Đơn hàng chờ xác nhận</div>
+                        </div>
+                        <div class="statistical-icon">
+                            <i class="far fa-gem fs-3 text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="col statistical-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column justify-content-center">
+                            <div class="number" th:text="${countUserByWeek}"></div>
+                            <div class="text-description">Khách hàng mới</div>
+                        </div>
+                        <div class="statistical-icon">
+                            <i class="far fa-user-circle fs-3 text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="col statistical-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column justify-content-center">
+                            <div class="number" th:text="${countReviewByWeek}"></div>
+                            <div class="text-description">Đánh giá mới</div>
+                        </div>
+                        <div class="statistical-icon">
+                            <i class="far fa-paper-plane fs-3 text-primary"></i>
+                        </div>
+                    </div>
+                    <div class="col statistical-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column justify-content-center">
+                            <div class="number d-flex">
+                                <div th:text = "${totalOrderByWeek}"></div>
+                            </div>
+                            <div class="text-description">Tổng số đơn hàng trong tuần</div>
+                        </div>
+                        <div class="statistical-icon">
+                            <i class="fa fa-chart-bar fs-3 text-primary"></i>
+                        </div>
+                    </div>
+                </section>
+                <section class="bar-chart d-flex align-items-center" style="margin-bottom: 30px">
+                    <div id="chartColumn"></div>
+                </section>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript" th:src="@{/js/index.js}" ></script>
+
+<script th:inline="javascript">
+    $(function() {
+
+        let listEarnKey = [[${listEarnKey}]];
+        let listEarnValue = [[${listEarnValue}]];
+
+        Highcharts.chart('chartColumn', {
+            chart: {
+                type: 'column',
+                events: {
+                    load: function (event) {
+                        event.target.reflow();
+                    }
+                }
+            },
+            title: {
+                text: 'Doanh thu trong tuần qua'
+            },
+            xAxis: {
+                categories: listEarnKey
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: ''
+                }
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0"></td>' +
+                    '<td style="padding:0"><b>{point.y}₫</b></td></tr>',
+                footerFormat: '</table>',
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            series: [
+                {
+                    name: "Doanh thu",
+                    data: listEarnValue
+                }
+            ]
+        });
+
+
+    });
+
+</script>
+</body>
+
+</html>

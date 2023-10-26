@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org" lang="en"
+       xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">>
+<body>
+<head th:fragment="page_head(pageTitle)">
+    <meta http-equiv="Content-Type" content="text/html; charset = UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0">
+    <title>[[${pageTitle}]]</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" type="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}">
+    <title>Title</title>
+</head>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white py-4 justify-content-betwe">
+    <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
+        <input type="submit"/>
+    </form>
+    <div class="container">
+        <button class="navbar-toggler border-0" type="button"
+                data-bs-toggle = "collapse" data-bs-target = "#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <a style="margin-right: 0;" th:href="@{/}" class="navbar-brand d-flex justify-content-center align-items-center
+        order-lg-0">
+            <img style="width: 40px; height: 40px" th:src="@{images/ptit.png}" alt="site icon">
+            <span class="text-uppercase fw-lighter ms-4 custom-hidden-mobile-shopname">Beauty</span>
+        </a>
+        <div class="order-lg-2 nav-btns position-relative">
+            <button sec:authorize="!isAuthenticated()" type="button" class="btn position-relative custom-hidden-mobile-user">
+                <img th:src="@{images/user.webp}" alt="user-avatar">
+            </button>
+            <button sec:authorize="isAuthenticated()" type="button" class="btn position-relative hidden-user-avatar">
+                <img style="width: 24px; height: 24px;" th:src="@{images/user-login.webp}" alt="user-avatar">
+            </button>
+            <div sec:authorize="!isAuthenticated()" style="width: 150px; top: 45px; left: -120px; background-color: #f5f5f5; z-index: 99"
+                 class="log-in-out position-absolute">
+                <button class="log-in w-100 d-block btn btn-outline-info mb-1">
+                    <a th:href="@{/login}" class="text-decoration-none text-black">
+                        Đăng nhập
+                    </a>
+                </button>
+                <button class="log-out w-100  d-block btn btn-outline-info">
+                    <a th:href="@{/register}" class="text-decoration-none text-black">
+                        Đăng ký
+                    </a>
+                </button>
+            </div>
+            <div sec:authorize="isAuthenticated()" style="width: 200px; top: 45px; left: -120px;
+            background-color: #f5f5f5; z-index: 99" class="dropdown-user-menu position-absolute">
+                <button class="log-in w-100 d-block btn btn-outline-info mb-1">
+                    <a th:href="@{/profile}" class="text-decoration-none text-black">
+                        Thông tin tài khoản
+                    </a>
+                </button>
+                <button class="log-in w-100 d-block btn btn-outline-info mb-1">
+                    <a th:href="@{/order}" class="text-decoration-none text-black">
+                        Danh sách đơn hàng
+                    </a>
+                </button>
+                <button class="log-in w-100 d-block btn btn-outline-info mb-1">
+                    <a th:href="@{/address}" class="text-decoration-none text-black">
+                        Địa chỉ của tôi
+                    </a>
+                </button>
+                <button class="log-out w-100  d-block btn btn-outline-info">
+                    <a id="logoutLink" class="text-decoration-none text-black">
+                        Đăng xuất
+                    </a>
+                </button>
+            </div>
+            <button type="button" class="btn position-relative">
+                <a th:href="@{/cart}" class="text-decoration-none">
+                    <img th:src="@{images/bag.webp}">
+                    <span sec:authorize="isAuthenticated()" style="top:10px; right: -15px;" class="position-absolute top-0-star-100 translate-middle badge bg-info">
+                    <span id="cart-item-quantity">
+
+                    </span>
+                </span>
+                </a>
+            </button>
+            <button type="button" class="btn position-relative search_button">
+                <img style="filter: invert(100%);" th:src="@{images/search_icon1.webp}">
+            </button>
+            <div class="div-input-search input-group-append position-absolute" style="top:45px; left: -50px; z-index: 99">
+                <form th:action="@{/products}" class="d-flex">
+                    <input type="search"  name="keyword" th:value="${keyword}" class="input-search border border-secondary px-2" placeholder="Tìm kiếm...">
+                    <button type="submit" class="input-group-text">
+                        <img  style="filter: invert(100%);"  th:src="@{images/search_icon1.webp}">
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="collapse navbar-collapse order-lg-1" id="navMenu">
+            <ul class="navbar-nav mx-auto text-center">
+                <li class="nav-item px-2 py-2">
+                    <a th:href="@{/}" class="nav-link text-uppercase text-dark">Trang chủ</a>
+                </li>
+                <li class="nav-item px-2 py-2">
+                    <a th:href="@{/products}" class="nav-link text-uppercase text-dark">Sản phẩm</a>
+                </li>
+                <li class="nav-item px-2 py-2">
+                    <a th:href="@{/}"  class="nav-link text-uppercase text-dark">Blogs</a>
+                </li>
+                <li class="nav-item px-2 py-2">
+                    <a th:href="@{/}"  class="nav-link text-uppercase text-dark">Giới thiệu</a>
+                </li>
+                <li class="nav-item px-2 py-2">
+                    <a th:href="@{/}"  class="nav-link text-uppercase text-dark">Liên hệ</a>
+                </li>
+
+                <form th:action="@{/products}" class="form-inline d-sm-none collapse-search">
+                    <input class="form-control mr-sm-2" type="search"  name="keyword" th:value="${keyword}" placeholder="Tìm kiếm..." aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Tìm kiếm</button>
+                </form>
+                <li sec:authorize="!isAuthenticated()" class="nav-item px-2 py-2 log-in-link d-sm-none">
+                    <a  th:href="@{/login}" class="nav-link text-uppercase text-dark">Đăng nhập</a>
+                </li>
+                <li sec:authorize="!isAuthenticated()" class="nav-item px-2 py-2 log-out-link d-sm-none">
+                    <a th:href="@{/register}"class="nav-link text-uppercase text-dark">Đăng ký</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<footer th:fragment="footer" class="text-center text-lg-start bg-white text-muted" style="border-top: 2px solid #f5f5f5;">
+    <!-- Section: Links  -->
+    <section class="">
+        <div class="container text-center text-md-start mt-5">
+            <!-- Grid row -->
+            <div class="row mt-3">
+                <!-- Grid column -->
+                <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                    <!-- Content -->
+                    <h6 class="text-uppercase fw-bold mb-4">
+                        <i class="fas fa-gem me-3 text-secondary"></i>Beauty Shop
+                    </h6>
+                    <p>
+                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolore quisquam perferendis at molestias maxime ullam asperiores, quia culpa perspiciatis, reiciendis.
+                    </p>
+                </div>
+
+                <!-- Grid column -->
+                <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4 ">
+                    <!-- Links -->
+                    <h6 class="text-uppercase fw-bold mb-4">
+                        Thông tin hỗ trợ
+                    </h6>
+                    <p>
+                        <a href="#!" class="text-reset text-decoration-none">Giới thiệu</a>
+                    </p>
+                    <p>
+                        <a href="#!" class="text-reset text-decoration-none">Blogs</a>
+                    </p>
+                    <p>
+                        <a href="#!" class="text-reset text-decoration-none">Hướng dẫn mua hàng</a>
+                    </p>
+                    <p>
+                        <a href="#!" class="text-reset text-decoration-none">Hướng dẫn đổi trả</a>
+                    </p>
+                </div>
+                <!-- Grid column -->
+                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                    <!-- Links -->
+                    <h6 class="text-uppercase fw-bold mb-4">
+                        Danh mục chính
+                    </h6>
+                    <p>
+                        <a th:href="@{/}" class="text-reset text-decoration-none">Trang điểm mặt</a>
+                    </p>
+                    <p>
+                        <a th:href="@{/}"class="text-reset text-decoration-none">Trang điểm mắt</a>
+                    </p>
+                    <p>
+                        <a th:href="@{/}" class="text-reset text-decoration-none">Chăm sóc da</a>
+                    </p>
+                    <p>
+                        <a th:href="@{/}" class="text-reset text-decoration-none">Chăm sóc tóc</a>
+                    </p>
+                </div>
+
+                <!-- Grid column -->
+                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                    <!-- Links -->
+                    <h6 class="text-uppercase fw-bold mb-4">Địa chỉ</h6>
+                    <p><i class="fas fa-home me-3 text-secondary"></i> 97 Man Thiện, Hiệp Phú, TP.Thủ Đức</p>
+                    <p>
+                        <i class="fas fa-envelope me-3 text-secondary"></i>
+                        myemail@example.com
+                    </p>
+                    <p><i class="fas fa-phone me-3 text-secondary"></i> + 01 234 567 88</p>
+                    <p><i class="fas fa-print me-3 text-secondary"></i> + 01 234 567 89</p>
+                </div>
+                <!-- Grid column -->
+            </div>
+            <!-- Grid row -->
+        </div>
+    </section>
+    <!-- Section: Links  -->
+
+    <!-- Copyright -->
+    <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.025);">
+        © Beauty shop 2023 Copyright:
+    </div>
+    <!-- Copyright -->
+</footer>
+</body>
+</html>

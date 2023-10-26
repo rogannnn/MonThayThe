@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/main_fragment.html::page_head('Product Form')}" />
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sidebar.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/dashboard.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/add_form.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="page-container" class="d-flex flex-column flex-root">
+        <div class="d-flex flex-row flex-column-fluid page">
+            <div th:replace="${product.id != null} ? ~{fragments/sidebar_fragment :: sidebar('product','product_all')} : ~{fragments/sidebar_fragment :: sidebar('product','product_new')}"></div>
+
+            <div class="d-flex flex-column wrapper">
+                <div th:replace="~{fragments/header_fragment :: header}"></div>
+                <div class="content">
+
+                    <section class="form-container">
+                        <div class="form-container-header d-flex align-items-center justify-content-between">
+                            <h1 class="title" th:text="${product.id != null} ? 'Sua Thong Tin San Pham': 'Thêm Sản Phẩm Mới'"></h1>
+                        </div>
+                        <div class="form-container-content">
+                            <div class="row justify-content-center">
+                                <div class="col-md-10 col-lg-8">
+                                    <form th:action="${product.id != null ? '/admin/product/edit/' + product.id : '/admin/product/add'}" th:object="${product}"  method="post" id="form-product" enctype="multipart/form-data">
+
+                                        <input type="hidden" th:field="*{id}" />
+                                        <div class="mb-4">
+                                            <label class="form-label" for="name">Name</label>
+                                            <input type="text" class="form-control" id="name" th:field="*{name}"  required/>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label" for="description">Description</label>
+                                            <textarea class="form-control" id="description" th:field="*{description}" rows="4" required></textarea>
+                                        </div>
+                                        <div class="mb-4 d-flex flex-column justify-content-center">
+                                            <label class="form-label" for="categories">Category</label>
+                                            <select class="custom-select" required id="categories" th:field="*{category}">
+                                                <th:block th:each="cate : ${listCategories}">
+                                                    <option th:value="${cate.id}" th:text="${cate.name}"></option>
+                                                </th:block>
+                                            </select>
+                                        </div>
+                                        <div class="mb-4 d-flex flex-column justify-content-center">
+                                            <label class="form-label" for="brands">Brand</label>
+                                            <select class="custom-select" required id="brands" th:field="*{brand}">
+                                                <th:block th:each="brand : ${listBrands}">
+                                                    <option th:value="${brand.id}" th:text="${brand.name}"></option>
+                                                </th:block>
+                                            </select>
+                                        </div>
+                                        <div class="mb-4">
+                                            <div class="col-md-6" style="padding: 0px">
+                                                <label class="form-label" for="price">Price</label>
+                                                <div class="input-group">
+                                                    <input type="text"  class="form-control" id="price" th:field="*{price}" required  value="0">
+                                                    <span class="input-group-text">VNĐ</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <div class="col-md-6" style="padding: 0px">
+                                                <label class="form-label" for="inStock">In Stock</label>
+                                                <input type="text" class="form-control" id="inStock" th:field="*{inStock}" required  value="0">
+                                            </div>
+                                        </div>
+                                        <div class=" mb-4" style="padding:0">
+                                            <input type="file" multiple  name="images" id="imageInput">
+                                            <div class="upload-zone" id="previewContainer" style="overflow: hidden">
+                                                <th:block th:each="image : ${product.getImageProducts()}">
+                                                    <img th:src="${image.getPath()}" alt="product image" style="max-height: 195px; max-width: 195px">
+                                                </th:block>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="enabled" th:field="*{enabled}">
+                                                    <label class="custom-control-label" for="enabled">Publish?</label>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="mb-4 d-flex align-items-center justify-content-end">
+                                            <button type="submit" class="btn btn-danger auth-btn">Lưu</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/index.js}" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            if($("#image").val() != '' && $("#image").val() != null) {
+                let image_output = document.getElementById('image-output');
+                $('#image-output').css('display', 'block')
+                image_output.src = $("#image").val();
+                $('.upload-zone-content').css('display', 'none');
+            }
+
+            if($('#price').val() != '' && $('#price').val() != null) {
+                $('#price').val(formatPrice($('#price').val()));
+            }
+            if($('#inStock').val() != '' && $('#inStock').val() != null) {
+                $('#inStock').val(formatPrice($('#inStock').val()));
+            }
+
+            $('#description').summernote({
+                height: 400,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['forecolor']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['height', ['height']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen']]
+                ],
+                tooltip: false,
+                dialogsInBody: true
+
+            });
+            let buttonClose = $('<button type="button" class="close-summernote-dialog" aria-hidden="true" tabindex="-1">&times;</button>')
+            $(".note-modal-content").append(buttonClose);
+
+            $('button.close-summernote-dialog').click(function(){
+                $('.note-modal').removeClass('open');
+                $('.note-modal-backdrop').css('display', 'none');
+            })
+
+
+
+        })
+
+    </script>
+
+    <script>
+        $('#price').keyup(function(event) {
+            formatNumber(event, $(this))
+        })
+
+        $('#inStock').keyup(function(event) {
+            formatNumber(event, $(this))
+        })
+
+    </script>
+    <script>
+        $('#form-product').on("submit", function (e) {
+            e.preventDefault();//stop submit event
+            $('#price').val(parseInt($('#price').val().split('.').join(""))) //remove dots
+            $('#inStock').val(parseInt($('#inStock').val().split('.').join(""))) //remove dots
+
+            $(this).off("submit");//need form submit event off.
+            $(this).submit();//submit form
+        });
+    </script>
+    <script>
+        document.getElementById("imageInput").addEventListener("change", function (event) {
+            var previewContainer = document.getElementById("previewContainer");
+            // previewContainer.innerHTML = "";
+
+            var files = event.target.files;
+            for (var i = 0; i < files.length; i++) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var imgElement = document.createElement("img");
+                    imgElement.src = e.target.result;
+                    imgElement.style.maxWidth = "195px";
+                    imgElement.style.maxHeight = "195px";
+                    previewContainer.appendChild(imgElement);
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        });
+    </script>
+</body>
+
+</html>

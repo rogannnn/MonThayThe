@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head th:replace="~{fragments/main_fragment.html ::page_head('Đơn hàng của tôi')}"/>
+<body style="background-color: #f5f5f5">
+<div class="container-fluid pb-4">
+    <nav th:replace="~{fragments/main_fragment.html :: navbar}"></nav>
+    <div class="m-4">
+        <h3>Đơn hàng của tôi</h3>
+    </div>
+    <div class="container pt-2" style="background-color: #f5f5f5">
+        <div class="row">
+            <div class="col-md-12 pb-2">
+                <div class="row justify-content-around" style="background-color: #fff">
+                    <ul class="nav nav-pills nav-fill" style="width: 100%;">
+                        <li class="nav-item">
+                            <a th:class="'nav-link ' + (${type == null ? 'active' : ''})" th:href="@{/order}">Tất cả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a th:class="'nav-link ' + (${type == 1 ? 'active' : ''})"  class="nav-link" th:href="@{/order(type=1)}">Chờ xác nhận</a>
+                        </li>
+                        <li class="nav-item">
+                            <a th:class="'nav-link ' + (${type == 2 ? 'active' : ''})" class="nav-link" th:href="@{/order(type=2)}">Chờ lấy hàng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a th:class="'nav-link ' + (${type == 3 ? 'active' : ''})"  class="nav-link" th:href="@{/order(type=3)}">Đang giao</a>
+                        </li>
+                        <li class="nav-item">
+                            <a th:class="'nav-link ' + (${type == 4 ? 'active' : ''})"  class="nav-link" th:href="@{/order(type=4)}">Đã giao</a>
+                        </li>
+                        <li class="nav-item">
+                            <a th:class="'nav-link ' + (${type == 5 ? 'active' : ''})"  class="nav-link" th:href="@{/order(type=5)}">Yêu cầu hủy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a th:class="'nav-link ' + (${type == 6 ? 'active' : ''})"  class="nav-link" th:href="@{/order(type=6)}">Đã hủy</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="row justify-content-between pt-4 pb-2 mt-2" style="border-top: 2px solid #f5f5f5"
+                     th:if="${orderList == null}">
+                    <div class="alert alert-success text-center">You don't have any orders yet.</div>
+                </div>
+            </div>
+        </div>
+        <div id="displayOrder">
+            <div id="originalDiv" class="container my-4" style="background-color: #fff" th:each="order : ${orderList}">
+                <div class="list-product">
+                    <div id="headerr" class="row py-2 d-flex align-items-center justify-content-end">
+                        <h6 id="order-id-name" class="mb-0 pr-3 text-primary"> Order ID: [[${order.id}]] |
+                            [[${order.orderStatus.name}]]</h6>
+                    </div>
+                    <a th:href="@{'/order/' + ${order.id}}" class="text-decoration-none" id="originalSubDiv">
+                        <div id="originalItem" class=" row py-2" style="border-top: 1px solid #dedede"
+                             th:each="orderDetail : ${order.orderDetails}">
+                            <div class="col-md-2 d-flex justify-content-center">
+                                <img id="order-detail-img" th:src="@{${orderDetail.product.getImageProducts()[0].getPath()}}"
+                                     style="width: 100px;height: 100px" alt="">
+                            </div>
+                            <div class="col-md-4">
+                                <h6 id="order-detail-product-name" class="text-black">[[${orderDetail.product.name}]]</h6>
+                                <h6 id="order-detail-product-quantity" class="text-black">x[[${orderDetail.quantity}]]</h6>
+                            </div>
+                            <div id="order-detail-product-init-price" class="col-md-1 offset-md-5"  th:text="${#numbers.formatDecimal(orderDetail.unitPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                            </div>
+
+                        </div>
+                    </a>
+                    <div class="row  py-2" style="border-top: 1px solid #dedede">
+                        <div class="col-md-2 offset-md-10  d-flex justify-content-center">
+                            <span class="h5 text-primary">Total:&nbsp;</span>
+                            <h5 id="order-total-price" class="text-primary"  th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')}"></h5>
+                            <span class="h5 text-primary">đ</span>
+                        </div>
+                    </div>
+                    <div class="row pb-4" th:unless="${order.orderStatus.id != 1}">
+                        <div class="col-md-2 offset-md-10 d-flex justify-content-center">
+                            <button  class=" requestCancelBtn btn btn-outline-danger">Yêu cầu hủy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div th:replace="~{modals/modal.html :: modal}"></div>
+
+<!--footer-->
+<footer th:replace="~{fragments/main_fragment.html:: footer}"></footer>
+</body>
+<script>
+    $(document).ready(function () {
+        $('.requestCancelBtn').on("click", function () {
+            var  confirmation  = confirm("Bạn thật sự muốn hủy đơn hàng này?");
+            if(confirmation){
+                var orderId = $(this).closest("#originalDiv").find("#order-id-name").text().match(/\d+/)[0];
+                url = "/order/" + orderId + "/request-cancel";
+                $.ajax({
+                    type:"GET",
+                    url:url
+                }).done(function (response) {
+                    if(response.includes("success")){
+                        location.reload();
+                    }
+                }).fail(function () {
+                    alert("Lỗi");
+                })
+            }
+        })
+        $('.btn-review').on("click", function () {
+            $("#myReviewModal").modal('show');
+        })
+    })
+</script>
+<script th:src="@{/js/show_dropdown_user.js}"></script>
+<script type="text/javascript" th:src="@{/js/common.js}"></script>
+
+</html>
