@@ -12,9 +12,13 @@
     <div class="order-detail">
       <div class="container mt-2 my-0" style="background-color: #fff">
         <div class="row py-2 d-flex align-items-center justify-content-end">
-          <h6 class="mb-0 pr-3 text-primary"> Order ID: [[${order.id}]] |
+          <h6 class="mb-0 pr-3 pb-2 text-primary"> Order ID: [[${order.id}]] |
             [[${order.orderStatus.name}]]</h6>
-          <h6 class="mb-0 pr-3 text-primary">Ngày đặt : [[${order.date}]]</h6>
+          <h6 class="mb-0 pr-3 pb-2 text-primary">Ngày đặt : [[${order.date}]]</h6>
+          <h6 class="mb-0 pr-3 pb-2 text-primary">Địa chỉ nhận hàng : [[${order.address.ward.fullName}]],&nbsp;
+            [[${order.address.ward.district.fullName}]],&nbsp;[[${order.address.ward.district.province.fullName}]]</h6>
+          <h6 class="mb-0 pr-3 pb-2 text-primary">Tên người nhận : [[${order.address.name}]]</h6>
+          <h6 class="mb-0 pr-3 pb-2 text-primary">Số điện thoại : [[${order.address.phone}]]</h6>
         </div>
 
         <div class="list-product">

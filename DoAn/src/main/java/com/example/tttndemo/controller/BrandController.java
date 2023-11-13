@@ -8,10 +8,7 @@ import com.example.tttndemo.service.StorageService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -86,23 +83,29 @@ public class BrandController {
         return "brand/new_brand";
     }
 
+//    @PostMapping("admin/brand/add")
+//    public String saveBrand(Brand brand,  RedirectAttributes redirectAttributes, @RequestParam("file") MultipartFile file) throws IOException {
+//
+//        String url = storageService.upload(file);
+//
+//        brand.setImages(url);
+//        brandService.saveBrand(brand);
+//        redirectAttributes.addFlashAttribute("messageSuccess", "The brand has been saved successfully.");
+//        return "redirect:/admin/brand";
+//
+//    }
+
     @PostMapping("admin/brand/add")
-    public String saveBrand(Brand brand,  RedirectAttributes redirectAttributes, @RequestParam("file") MultipartFile file) throws IOException {
-
-        String url = storageService.upload(file);
-
-        brand.setImages(url);
+    public String saveBrand(Brand brand,  RedirectAttributes redirectAttributes) {
         brandService.saveBrand(brand);
-        redirectAttributes.addFlashAttribute("messageSuccess", "The brand has been saved successfully.");
+        redirectAttributes.addFlashAttribute("messageSuccess", "Nhãn hiệu được lưu thành công.");
         return "redirect:/admin/brand";
 
     }
-
     @GetMapping("/admin/brand/edit/{id}")
     public String editProduct(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Model model) {
         try {
             Brand brand = brandService.getBrandById(id);
-
             model.addAttribute("brand", brand);
             return "brand/new_brand";
         }
@@ -122,20 +125,24 @@ public class BrandController {
 
             Brand brandCheckUnique = brandService.findBrandByName(brand.getName());
 
-            if(!existBrand.getImages().equals(brand.getImages())) {
-                String url = storageService.upload(file);
-                brand.setImages(url);
-            }
+//            if(!existBrand.getImages().equals(brand.getImages())) {
+//                String url = storageService.upload(file);
+//                brand.setImages(url);
+//            }
             brandService.saveBrand(brand);
 
             redirectAttributes.addFlashAttribute("messageSuccess", "The brand has been edited successfully.");
             return "redirect:/admin/brand";
 
 
-        } catch (BrandNotFoundException | IOException e) {
-            redirectAttributes.addFlashAttribute("messageError", e.getMessage());
-            return "redirect:/admin/brand";
-        }
+//        } catch (BrandNotFoundException | IOException e) {
+//            redirectAttributes.addFlashAttribute("messageError", e.getMessage());
+//            return "redirect:/admin/brand";
+//        }
+    } catch (BrandNotFoundException e) {
+        redirectAttributes.addFlashAttribute("messageError", e.getMessage());
+        return "redirect:/admin/brand";
+    }
     }
 
     @GetMapping("/admin/brand/delete/{id}")
@@ -146,12 +153,30 @@ public class BrandController {
                 redirectAttributes.addFlashAttribute("messageError", "Không thể xóa nhãn hiệu vì tồn tại sản phẩm có nhãn hiệu này");
             }else {
                 brandService.deleteBrand(id);
-                redirectAttributes.addFlashAttribute("messageSuccess", "The brand ID " + id + " has been deleted successfully");
+                redirectAttributes.addFlashAttribute("messageSuccess", "Nhãn hiệu với id: " + id + " đã bị xóa thành công");
             }
         }
         catch (BrandNotFoundException ex) {
             redirectAttributes.addFlashAttribute("messageError", ex.getMessage());
         }
         return "redirect:/admin/brand/page/1";
+    }
+
+    @PostMapping("/admin/brand/check-before-save")
+    @ResponseBody
+    public String checkBeforeSaveBrand(@RequestParam("name")String name,
+                                          @RequestParam("brandId") Integer brandId){
+
+        Brand brandByName = brandService.getBrandByName(name);
+        if(brandId == null) brandId = 0;
+
+
+
+        if(brandByName != null && brandByName.getId() != brandId){
+            return "Duplicate name";
+        }
+
+        return "OK";
+
     }
 }

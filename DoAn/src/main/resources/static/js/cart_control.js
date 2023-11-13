@@ -92,7 +92,7 @@ function increaseQuantity(link) {
     qtyInput = $("#quantity" + productId);
 
     newQuantity = parseInt(qtyInput.val());
-    if(newQuantity < 99) {
+    if(newQuantity < 999) {
         qtyInput.val(newQuantity);
         updatePriceForItem(productId, newQuantity);
     }
@@ -104,11 +104,41 @@ function updatePriceForItem(productId, quantity) {
     url = contextPath + "cart/update/" + productId + "/" + quantity;
 
     $.ajax({
-        type: "POST",
-        url: url
-    }).done(function(newSubTotal){
-        updateSubTotal(newSubTotal, productId);
-        updateTotal();
+        type:"GET",
+        url: '/cart/check-quantity-product',
+        data:{
+            quantity: quantity,
+            product: productId
+        }
+    }).done(function (response) {
+        if(response === true){
+            $.ajax({
+                type: "POST",
+                url: url
+            }).done(function(newSubTotal){
+                updateSubTotal(newSubTotal, productId);
+                updateTotal();
+            }).fail(function () {
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+            });
+        }else {
+            $("#quantity" + productId).val(quantity - 1);
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.CART_MORE_THAN_INSTOCK,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true,
+            })
+        }
     }).fail(function () {
         Swal.fire({
             title: '',
@@ -117,9 +147,8 @@ function updatePriceForItem(productId, quantity) {
             confirmButtonColor: '#3085d6',
             timer : 3000,
             timerProgressBar: true,
-            allowOutSideClick: false
         })
-    });
+    })
 }
 
 function updateSubTotal(newSubTotal, productId) {

@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PromotionService {
 
@@ -43,5 +45,10 @@ public class PromotionService {
 
     public Promotion savePromotion(Promotion promotion) {
         return promotionRepository.save(promotion);
+    }
+
+
+    public List<Promotion> getAll() {
+        return promotionRepository.findAll();
     }
 }

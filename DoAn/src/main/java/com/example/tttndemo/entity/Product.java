@@ -174,7 +174,7 @@ public class Product {
         this.brand = brand;
     }
 
-    public Collection<ImageProduct> getImageProducts() {
+    public List<ImageProduct> getImageProducts() {
         return imageProducts;
     }
 

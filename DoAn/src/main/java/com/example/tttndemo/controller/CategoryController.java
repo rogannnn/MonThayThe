@@ -9,10 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -94,13 +91,13 @@ public class CategoryController {
 
         category.setImages(url);
         categoryService.saveCategory(category);
-        redirectAttributes.addFlashAttribute("messageSuccess", "The category has been saved successfully.");
+        redirectAttributes.addFlashAttribute("messageSuccess","Thêm loại sản phẩm thành công.");
         return "redirect:/admin/category";
 
     }
 
     @GetMapping("/admin/category/edit/{id}")
-    public String editCategory(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Model model) {
+    public String editCategory(@PathVariable("id") Integer id, Model model) {
         Category category = categoryService.getCategoryById(id);
 
         model.addAttribute("category", category);
@@ -108,7 +105,7 @@ public class CategoryController {
     }
 
     @PostMapping("/admin/category/edit/{id}")
-    public String saveEditCategory(Category category, BindingResult errors, RedirectAttributes redirectAttributes,
+    public String saveEditCategory(Category category, RedirectAttributes redirectAttributes,
                                    @PathVariable("id") Integer id, @RequestParam("file") MultipartFile file) throws IOException {
 
             Category existCategory = categoryService.getCategoryById(id);
@@ -121,11 +118,8 @@ public class CategoryController {
 
             categoryService.saveCategory(category);
 
-            redirectAttributes.addFlashAttribute("messageSuccess", "The category has been edited successfully.");
+            redirectAttributes.addFlashAttribute("messageSuccess", "Lưu loại thành công thành công!");
             return "redirect:/admin/category";
-
-
-
 
     }
 
@@ -136,12 +130,31 @@ public class CategoryController {
                 redirectAttributes.addFlashAttribute("messageError", "Không thể xóa loại sản phẩm vì có sản phẩm loại này đang tồn tại!");
             }else {
                 categoryService.deleteCategory(id);
-                redirectAttributes.addFlashAttribute("messageSuccess", "The category ID " + id + " has been deleted successfully");
+                redirectAttributes.addFlashAttribute("messageSuccess", "Loại sản phẩm với id: " + id + " đã bị xóa thành công");
             }
         }
         catch (CategoryNotFoundException ex) {
             redirectAttributes.addFlashAttribute("messageError", ex.getMessage());
         }
         return "redirect:/admin/category/page/1";
+    }
+
+
+    @PostMapping("/admin/category/check-before-save")
+    @ResponseBody
+    public String checkBeforeSaveCategory(@RequestParam("name")String name,
+                                          @RequestParam("categoryId") Integer categoryId){
+
+        Category categoryByName = categoryService.getCategoryByName(name);
+        if(categoryId == null) categoryId = 0;
+
+
+
+        if(categoryByName != null && categoryByName.getId() != categoryId){
+            return "Duplicate name";
+        }
+
+        return "OK";
+
     }
 }

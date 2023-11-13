@@ -28,15 +28,15 @@
                                     <input type="hidden" th:field="*{id}" />
                                     <div class="mb-4">
                                         <label class="form-label" for="name">Name</label>
-                                        <input type="text" class="form-control" id="name" th:field="*{name}"  required/>
+                                        <input type="text" class="form-control" id="name" th:field="*{name}" />
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label" for="description">Description</label>
-                                        <textarea class="form-control" id="description" th:field="*{description}" rows="2" required></textarea>
+                                        <textarea class="form-control" id="description" th:field="*{description}" rows="2" ></textarea>
                                     </div>
                                     <div class="mb-4" style="padding:0px">
                                         <div class="upload-zone d-flex justify-content-center align-items-center">
-                                            <input type="file" name="file" accept="image/png, image/jpg, image/jpeg" onchange="loadFile(event)" class="upload-zone-input" id="input-image" multiple="false" th:required="${category.id != null} ? 'false' : 'true'"/>
+                                            <input type="file" name="file" accept="image/*" onchange="loadFile(event)" class="upload-zone-input" id="input-image" multiple="false" />
                                             <input type="text" id="image" th:field="*{images}" readonly style="display: none; opacity: 0"/>
                                             <img id="image-output"/>
                                             <div class="upload-zone-content">
@@ -61,8 +61,10 @@
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
 <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 <script type="text/javascript" th:src="@{/js/index.js}" ></script>
+<script type="text/javascript" th:src="@{/js/NOTIFY.js}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
 
-<script>
+<script type="text/javascript">
     $(document).ready(function() {
 
         if($("#image").val() != '' && $("#image").val() != null) {
@@ -72,11 +74,92 @@
             $('.upload-zone-content').css('display', 'none');
         }
 
+        $("#form-category").submit(function (event) {
+            let name = $("#name").val();
+            let description = $("#description").val();
+            let image = $("#image").val();
+            let categoryId = "[[${category.id}]]";
+
+            if(!name){
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.NAME_BLANK_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+
+            if(!description){
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.DESCRIPTION_BLANK_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+
+            if(!image && categoryId == 0){
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.IMAGE_BLANK_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+            if(categoryId == null || categoryId == '' ) {
+                categoryId = 0;
+            }
+
+            let form = this;
+            event.preventDefault();
+            $.ajax({
+                method:"POST",
+                url : '/admin/category/check-before-save',
+                data: {
+                    name: name,
+                    categoryId: categoryId
+                },
+                success:function (response) {
+                    if(response.includes("OK")){
+                        form.submit();
+                    }else
+                        {
+                            Swal.fire({
+                                title: '',
+                                text: MESSAGE_NOTIFY.CATEGORY_NAME_DUPLICATE,
+                                icon: 'error',
+                                confirmButtonColor: '#3085d6',
+                                timer : 3000,
+                                timerProgressBar: true
+                            })
+                        }
+                },
+                error: function () {
+
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                        timer : 3000,
+                        icon: 'error'
+                    })
+                }
+            })
+        })
+
+
     })
-
-</script>
-
-<script>
 
 </script>
 </body>

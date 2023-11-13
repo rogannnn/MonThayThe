@@ -25,6 +25,21 @@ function formatNumber(event, input) {
     });
 }
 
+function formatNumber2(event, input) {
+    if(event.which >= 37 && event.which <= 40){
+        event.preventDefault();
+    }
+    input.val(function(index, value) {
+         value = value
+            .replace(/\D/g, "")
+            .replace(/^0+(\d)/, '$1')
+            ;
+         value = Math.min(Math.max(value, 0), 100);
+         return value;
+
+    });
+}
+
 /** double to price */
 function formatPrice(inputPrice) {
     return parseFloat(inputPrice).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}).replaceAll(",", ".");
@@ -61,33 +76,6 @@ function clearFilter(entityName) {
     window.location = `/admin/${entityName}/page/1`;
 }
 
-function handleInputNumber(evt) {
-    let max = parseInt(evt.currentTarget.getAttribute('max'));
-    let number = parseInt(evt.target.value);
-    if(number >= max) {
-        evt.target.value = max;
-    }
-    else if(number <=0 || isNaN(number)) {
-        evt.target.value = 1;
-    }
-    else {
-        evt.target.value = number;
-    }
-}
-
-
-
-function showErrorLoginPage() {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = "<div><div>Bạn phải đăng nhập để thêm sản phẩm này vào giỏ hàng.</div><div>Đi đến <a style='color: #4c78dd; font-weight: 700' href='/login'>Trang Đăng Nhập</a></div></div>"
-
-    Swal.fire({
-        title: '',
-        html: wrapper,
-        icon: 'error'
-    })
-
-}
 
 $(document).on('click', '.dropdown-menu', function (e) {
     e.stopPropagation();
@@ -95,44 +83,4 @@ $(document).on('click', '.dropdown-menu', function (e) {
 
 
 
-function showConfirmDelete(event, entityId ) {
-    event.preventDefault();
-    let link = $("#link-delete-" + entityId)
-    let entityName = link.attr("entity")
 
-    let url = link.attr("href")
-
-
-    Swal.fire({
-        title: "Bạn có chắc chắn muốn xóa "
-            + entityName + " ID " + entityId + "?",
-        text: "Bạn sẽ không thể hoàn tác điều này!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: `<a href=${url} style="padding: 0.625em 1.1em;">Yes, delete it!</a>`,
-    })
-}
-
-function btnDeleteCartItem(event,productId) {
-    event.preventDefault();
-    let url = '/cart/delete/' + productId
-    Swal.fire({
-        title: 'Bạn có chắc chắn không?',
-        text: "Bạn sẽ không thể hoàn tác điều này!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: `<a href=${url} style="padding: 0.625em 1.1em;">Yes, delete it!</a>`,
-    })
-}
-
-function handleDetailLink(linkClass, modalId) {
-    $(linkClass).on("click", function(e) {
-        e.preventDefault();
-        linkDetailURL = $(this).attr("href");
-        $(modalId).modal("show").find(".modal-content").load(linkDetailURL);
-    });
-}

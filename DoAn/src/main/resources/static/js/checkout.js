@@ -40,6 +40,10 @@ $(document).ready(function () {
     $(".btn-link").on("click",function (e) {
         displayAddress();
     });
+
+    $(".btn-link-new-address").on("click",function (e) {
+        displayAddressNewAddressModal();
+    });
     updateTotalMoney();
     $("#addressModal").on("hidden.bs.modal", function() {
         $("#addressList").empty();
@@ -57,7 +61,7 @@ $(document).ready(function () {
 
     $('#addressModal').on('shown.bs.modal', function() {
         $('.item').click(function() {
-            var radio = $(this).find('input[type="radio"]');
+            let radio = $(this).find('input[type="radio"]');
             radio.prop('checked', true);
             selectedAddressId = radio.val();
         });
@@ -72,37 +76,204 @@ $(document).ready(function () {
     })
 
     $(".btn-purchase").on("click",function (){
-        $.ajax({
-            type: "GET",
-            url: 'order/check-quantity'
-        }).done(function (response) {
-            if(response === true){
-                if(payment == 1){
-                    createOrder();
-                }
-                else {
-                    onlinePayment();
-                }
-            } else {
-                Swal.fire({
-                    title: '',
-                    text: MESSAGE_NOTIFY.CHECKOUT_MORE_THAN_INSTOCK,
-                    icon: 'error'
-                })
-            }
-        }).fail(function () {
-            Swal.fire({
-                title: '',
-                text: MESSAGE_NOTIFY.LOGIC_ERROR,
-                icon: 'error'
-            })
-        });
+      if(selectedAddressId == null) {
+          Swal.fire({
+              title: '',
+              text: MESSAGE_NOTIFY.NO_ADDRESS_ERROR,
+              icon: 'error',
+              confirmButtonColor: '#3085d6',
+              timer: 3000,
+              timerProgressBar: true
+          });
+          return;
+      }
 
+        if(payment == 1){
+            createOrder();
+        }
+        else {
+            onlinePayment();
+        }
     });
 
     closeModalButton = $("#closeModal");
     $("#closeModal").on("click",function () {
         pageRedirect();
+    })
+
+
+    loadProvince();
+
+
+    $('.btn-confirm-new-address').on("click",function (){
+        let name = $('#name').val();
+        let phone = $('#phone').val();
+        let specificAddress = $('#specificAddress').val();
+        let wardCode = $('#inputWard').val();
+
+
+        if(!name){
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.NAME_BLANK_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+        let vietnamPhoneRegex = /^(0|\+84)[1-9]\d{8,9}$/;
+        if(!phone){
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.PHONE_BLANK_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+        if (!vietnamPhoneRegex.test(phone)) {
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.PHONE_VALIDATE_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+
+        if(!specificAddress){
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.SPECIFIC_ADDRESS_BLANK_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+
+        if(!wardCode){
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.FULL_ADDRESS_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+
+        $.ajax({
+            method:"POST",
+            url : '/address/new',
+            data: {
+                name: name,
+                phone : phone,
+                specificAddress : specificAddress,
+                wardCode: wardCode
+            },
+            success:function (response) {
+                if(response.includes("success")){
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.NEW_ADDRESS_SUCCESS,
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    }).then((result) => {
+                        if(result.dismiss  == Swal.DismissReason.timer){
+                            window.location.reload();
+                        } else if(result.isConfirmed){
+                            window.location.reload();
+                        }
+                    })
+                }else {
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.NEW_ADDRESS_FAIL,
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                    icon: 'error'
+                })
+            }
+        })
+    });
+
+    //new address modal
+    $('#inputProvince').change(function () {
+        let selectedValue = $(this).val();
+        let selectedText = $(this).find('option:selected').text();
+
+        // var urlGetDistrict =
+        // AJAX request to fetch district data
+        let urlGetDistrict = contextPath + "address/district/" + selectedValue;
+        $.ajax({
+            url: urlGetDistrict,
+            type: 'GET'
+        }).done(function (response) {
+            let districtSelect = $('#inputDistrict');
+            let wardSelect = $('#inputWard');
+
+            // Clear previous options
+            districtSelect.empty();
+            wardSelect.empty();
+
+            // Add new options based on the response
+            $.each(response, function (index, district) {
+                districtSelect.append($('<option>', {
+                    value: district.code,
+                    text: district.name
+                }));
+            });
+        }).fail(function (xhr, status, error) {
+            console.error(error);
+        });
+    })
+
+
+    $('#inputDistrict').change(function () {
+        let selectedValue = $(this).val();
+        let selectedText = $(this).find('option:selected').text();
+
+        // AJAX request to fetch district data
+        let urlGetWard = contextPath + "address/ward/" + selectedValue;
+        $.ajax({
+            url: urlGetWard,
+            type: 'GET'
+        }).done(function (response) {
+            let wardSelect = $('#inputWard');
+
+            // Clear previous options
+            wardSelect.empty();
+
+            // Add new options based on the response
+            $.each(response, function (index, ward) {
+                wardSelect.append($('<option>', {
+                    value: ward.code,
+                    text: ward.name
+                }));
+            });
+        }).fail(function (xhr, status, error) {
+            console.error(error);
+        });
     })
 });
 
@@ -132,7 +303,7 @@ function createOrder() {
         if(response.includes("success")){
             Swal.fire({
                 title: '',
-                text: "Đặt hàng thành công",
+                text: MESSAGE_NOTIFY.ORDER_SUCCESS,
                 icon: 'success',
                 confirmButtonColor: '#3085d6',
                 timer : 3000,
@@ -170,8 +341,9 @@ function changeAddress() {
         address = response;
         $(".address-name").text(address.name);
         $(".address-phone").text(address.phone);
-        $(".address-specific").text('  ' + address.specificAddress + ',' + address.ward.fullName + ',' +
-            address.ward.district.fullName + ',' + address.ward.district.province.fullName);
+        $(".address-specific").text('  ' + address.specificAddress + ', ' + address.ward.fullName + ', ' +
+            address.ward.district.fullName + ', ' + address.ward.district.province.fullName);
+        $(".div_address").css("padding-left", "");
         selectedAddressId = address.id;
         $("#addressModal").modal('hide');
     }).fail(function () {
@@ -187,7 +359,7 @@ function displayAddress() {
         type: "GET",
         url: url
     }).done(function (response) {
-        $("#modalAddressTitle").text("My Address");
+        $("#modalAddressTitle").text("Địa chỉ của tôi");
         addressList = response;
         addressList.forEach(function (address) {
             li = '<li class="list-group-item" style="text-align: left">' +
@@ -200,20 +372,26 @@ function displayAddress() {
                 '<span class="text-muted">' + address.specificAddress + '</span>' +
                 '<br>' +
                 '<span class="text-muted">' +address.ward.fullName + '</span>' +
-                ','+
+                ', '+
                 '<span class="text-muted">' +address.ward.district.fullName + '</span>' +
-                ','+
+                ', '+
                 '<span class="text-muted">' + address.ward.district.province.fullName + '</span>' +
                 '<span class="is-default">' + (address.isDefault ? 'Default' : '') + '</span>' +
-                '</li> </div>';
+                '</li> ' +
+                '</div>';
             $("#addressList").append(li);
         });
         $("#addressModal").modal('show');
     }).fail(function () {
-        $("#modalTitle").text("My Address");
-        $("#modalBody").text("Error while displaying your addresses");
+        $("#modalTitle").text("Địa chỉ của tôi");
+        $("#modalBody").text("Có lỗi xảy ra khi hiển thị địa chỉ");
         $("#myModal").modal('show');
     });
+}
+
+
+function displayAddressNewAddressModal() {
+    $("#newAddressModal").modal('show');
 }
 
 function updateTotalMoney() {
@@ -223,9 +401,7 @@ function updateTotalMoney() {
 
     subPrice.each(function (){
         priceText = $(this).text();
-        console.log(priceText);
         price = parseFloat(priceText.split(',').join(""));
-        console.log(price);
         total += price;
     });
 
@@ -233,3 +409,31 @@ function updateTotalMoney() {
 
     $(".total-price").text(formattedNumber + 'đ');
 }
+
+
+
+//new address modal
+
+
+function loadProvince() {
+
+    let getListProvince = contextPath + "address/province";
+
+    $.ajax({
+        type: "GET",
+        url: getListProvince
+    }).done(function(response){
+        var provinceSelect = $('#inputProvince');
+
+        // Add new options based on the response
+        $.each(response, function (index, province) {
+            provinceSelect.append($('<option>', {
+                value: province.code,
+                text: province.name
+            }));
+        });
+    }).fail(function (xhr, status, error) {
+        console.error(error);
+    });
+}
+

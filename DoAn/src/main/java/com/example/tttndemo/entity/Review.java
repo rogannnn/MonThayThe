@@ -23,7 +23,7 @@ public class Review {
     private Product product;
 
     @DateTimeFormat(pattern="dd/MM/yyyy HH:mm") // Định dạng ngày giờ
-    @Column(name="datetime_column")
+    @Column(name="created_at")
     private LocalDateTime date;
 
     @Column(name="comment", length = 300, nullable = false)

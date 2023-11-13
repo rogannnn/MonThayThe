@@ -58,7 +58,7 @@ xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
                 </div>
                 <div class="item-price">
                   <span> Đơn giá: </span>
-                  <span th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></span>
+                  <span th:text="${#numbers.formatDecimal(product.getPriceDiscount(), 0, 'COMMA', 0, 'POINT')}"></span>
                   <span>đ</span>
                 </div>
                 <div class="item-quantity" th:replace="~{fragments/quantity_control.html :: quantity_control(${item.quantity}, ${item.product.id})}"></div>

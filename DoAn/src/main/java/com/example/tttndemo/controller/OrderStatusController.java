@@ -1,9 +1,7 @@
 package com.example.tttndemo.controller;
 
-import com.example.tttndemo.entity.Category;
-import com.example.tttndemo.entity.Order;
+
 import com.example.tttndemo.entity.OrderStatus;
-import com.example.tttndemo.exception.CategoryNotFoundException;
 import com.example.tttndemo.exception.OrderNotFoundException;
 import com.example.tttndemo.exception.OrderStatusNotFoundException;
 import com.example.tttndemo.service.OrderStatusService;

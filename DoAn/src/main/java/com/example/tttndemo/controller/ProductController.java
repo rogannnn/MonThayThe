@@ -3,17 +3,14 @@ package com.example.tttndemo.controller;
 
 
 
+import com.example.tttndemo.dto.ProductDTO;
 import com.example.tttndemo.entity.*;
 import com.example.tttndemo.exception.ProductNotFoundException;
 import com.example.tttndemo.service.*;
-import com.example.tttndemo.utils.TopSellingProduct;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -30,27 +27,36 @@ public class ProductController {
     private final ReviewService reviewService;
     private final CategoryService categoryService;
     private final BrandService brandService;
-
     private final StorageService storageService;
+    private final PromotionDetailService promotionDetailService;
 
     private final ImageProductService imageProductService;
 
-    public ProductController(ProductService productService, ReviewService reviewService, CategoryService categoryService, BrandService brandService, StorageService storageService, ImageProductService imageProductService) {
+    public ProductController(ProductService productService, ReviewService reviewService, CategoryService categoryService, BrandService brandService, StorageService storageService, PromotionDetailService promotionDetailService, ImageProductService imageProductService) {
         this.productService = productService;
         this.reviewService = reviewService;
         this.categoryService = categoryService;
         this.brandService = brandService;
         this.storageService = storageService;
+        this.promotionDetailService = promotionDetailService;
         this.imageProductService = imageProductService;
     }
 
     @GetMapping(value = {"/"})
     public String getAll(Model model){
-        List<Product> productList = productService.getAll();
+        List<Product> productList = productService.getAllDESC();
+        List<ProductDTO> productDTOList = new ArrayList<>(); // new product
+        List<ProductDTO> productDTOSellingList = new ArrayList<>();
+        for(Product p : productList){
+            productDTOList.add(new ProductDTO(promotionDetailService.findDiscountByProductId(p.getId()),p));
+        }
         List<Product> topSellingProducts = productService.getTopSellingProduct(20);
 
-        model.addAttribute("listProduct",productList);
-        model.addAttribute("topSellingProducts",topSellingProducts);
+        model.addAttribute("productDTOList",productDTOList);
+        for(Product p : topSellingProducts){
+            productDTOSellingList.add(new ProductDTO(promotionDetailService.findDiscountByProductId(p.getId()),p));
+        }
+        model.addAttribute("productDTOSellingList",productDTOSellingList);
         return "index";
     }
 
@@ -58,8 +64,14 @@ public class ProductController {
     @GetMapping("/product/{id}")
     public String viewProductDetail(@PathVariable("id") Integer id, Model model){
         Product product = productService.getProductById(id);
+        ProductDTO productDTO = new ProductDTO(promotionDetailService.findDiscountByProductId(id),product);
         List<Review> reviewList = reviewService.getListReviewByProduct(product);
         List<Product> listProduct = productService.getTopSellingProduct(4);
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        for(Product p : listProduct){
+            productDTOList.add(new ProductDTO(promotionDetailService.findDiscountByProductId(p.getId()),p));
+        }
+
         int totalComment = 0;
         double averageRating = 0;
         if(reviewList.size() > 0){
@@ -71,9 +83,9 @@ public class ProductController {
         }
         model.addAttribute("totalComment", totalComment);
         model.addAttribute("averageRating", averageRating);
-        model.addAttribute("product", product);
+        model.addAttribute("product", productDTO);
         model.addAttribute("reviewList",reviewList);
-        model.addAttribute("listProduct", listProduct);
+        model.addAttribute("listProduct", productDTOList);
         return "product-detail";
     }
 
@@ -84,8 +96,9 @@ public class ProductController {
             , @RequestParam(value = "sortDir",required = false) String sortDir
             , @RequestParam(value = "category",required = false) Integer categoryId
             , @RequestParam(value = "brand",required = false) Integer brandId
+            , @RequestParam(value = "minPrice",required = false) Integer minPrice
+            , @RequestParam(value = "maxPrice",required = false) Integer maxPrice
             , @RequestParam(value = "keyword",required = false) String keyword, Model model){
-//        List<Product> productList = productService.getAll();
 
         List<Category> categoryList = categoryService.listAll();
 
@@ -93,10 +106,10 @@ public class ProductController {
 
         Page<Product> pageProduct;
         if(pageNum == null){
-            pageProduct = productService.findAllPageByKeyword(1, keyword, sortField, sortDir, categoryId , brandId);
+            pageProduct = productService.findAllPageByKeyword(1, keyword, sortField, sortDir, categoryId , brandId, minPrice, maxPrice);
 
         }else {
-            pageProduct = productService.findAllPageByKeyword(pageNum,keyword,sortField,sortDir, categoryId, brandId);
+            pageProduct = productService.findAllPageByKeyword(pageNum,keyword,sortField,sortDir, categoryId, brandId, minPrice, maxPrice);
         }
         int totalPage = pageProduct.getTotalPages();
         long totalProduct = pageProduct.getTotalElements();
@@ -114,9 +127,38 @@ public class ProductController {
         }
         model.addAttribute("pageTitle","Products-Page "+pageNum);
 
-        model.addAttribute("listProduct",listProducts);
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        for(Product p : listProducts){
+            productDTOList.add(new ProductDTO(promotionDetailService.findDiscountByProductId(p.getId()),p));
+        }
+        model.addAttribute("listProduct",productDTOList);
         model.addAttribute("listCategory",categoryList);
         model.addAttribute("listBrand",brandList);
+
+        Integer priceId = 0;
+        if(sortField != null) {
+            model.addAttribute("sortField",sortField);
+        }else model.addAttribute("sortField",null);
+        if(sortDir != null){
+            model.addAttribute("sortDir",sortDir);
+        }else model.addAttribute("sortDir",null);
+
+       if(maxPrice != null){
+           if(maxPrice == 100000) priceId = 1;
+           if(maxPrice == 200000) priceId = 2;
+           if(maxPrice == 300000) priceId = 3;
+           if(maxPrice == 500000) priceId = 4;
+           if(maxPrice == 1000000) priceId = 5;
+           if(maxPrice == 100000000) priceId = 6;
+       }
+        model.addAttribute("priceId",priceId);
+
+       if(categoryId == null || categoryId == 0) model.addAttribute("categoryId",0);
+       else model.addAttribute("categoryId", categoryId);
+
+        if(brandId == null || brandId == 0) model.addAttribute("brandId",0);
+        else model.addAttribute("brandId", brandId);
+
         return "products";
     }
 
@@ -170,6 +212,8 @@ public class ProductController {
         List<Category> listCategories = categoryService.listAll();
 
         Product product = new Product();
+        product.setInStock(0);
+        product.setPrice(0d);
         product.setEnabled(true);
         model.addAttribute("listBrands", listBrands);
         model.addAttribute("listCategories", listCategories);
@@ -263,6 +307,22 @@ public class ProductController {
             redirectAttributes.addFlashAttribute("messageError","Vô dây rồi");
             return "redirect:/admin/product/page/1";
         }
+    }
+
+
+    @PostMapping("/admin/product/check-before-save")
+    @ResponseBody
+    public String checkBeforeSaveCategory(@RequestParam("name")String name,
+                                          @RequestParam("productId") Integer productId){
+
+        Product productByName = productService.getProductByName(name);
+        if(productId == null) productId = 0;
+
+        if(productByName != null && productByName.getId() != productId){
+            return "Duplicate name";
+        }
+        return "OK";
+
     }
 
 

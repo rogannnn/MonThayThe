@@ -19,7 +19,5 @@ public class ResourceConfig implements WebMvcConfigurer {
                 .addResourceLocations("/public", "classpath:/static/");
         registry.addResourceHandler("/forgot-password/**")
                 .addResourceLocations("/public", "classpath:/static/");
-
-
     }
 }

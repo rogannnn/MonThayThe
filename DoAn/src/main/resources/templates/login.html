@@ -27,7 +27,7 @@
       </p>
       <p>
       <div class="input-group mb-3"  id="show-hide-password">
-        <input type="password" name="password" class="form-control pass" required minlength="6"
+        <input type="password" name="password" class="form-control pass" required minlength="1"
                maxlength="64" placeholder="Password">
         <span class="input-group-text"><i class="fa-solid fa-eye-slash"></i></span>
       </div>
@@ -39,10 +39,11 @@
         <input type="submit" value="Login" class="btnn btn btn-primary">
       </p>
       <p>
-        <a th:href="@{/register}">Don't have an account? Create one</a>
+<!--        <a th:href="@{/register}">Don't have an account? Create one</a>-->
+        <a th:href="@{/register}">Chưa có tài khoản, tạo ngay</a>
       </p>
       <p>
-        <a th:href="@{/forgot-password/email}">Forget password</a>
+        <a th:href="@{/forgot-password/email}">Quên mật khẩu</a>
       </p>
     </div>
   </form>

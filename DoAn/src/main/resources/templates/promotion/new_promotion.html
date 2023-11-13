@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head th:replace="~{fragments/main_fragment.html::page_head('Promotions Form ')}" />
 <head>
     <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/dashboard.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/add_form.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/list.css}"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
 
 </head>
@@ -26,22 +27,40 @@
                     <div class="form-container-content">
                         <div class="row justify-content-center">
                             <div class="col-md-10 col-lg-8">
-                                <form th:action="${promotion.id != null} ? @{'/admin/promotion/edit/' + ${promotion.id}} : @{/admin/promotion/add}" th:object="${promotion}"  method="post" id="form-promotion">
-                                    <input type="hidden" th:field="*{id}" />
-                                <div class="mb-4">
-                                    <label class="form-label" for="finish-date">Từ ngày</label>
-                                    <input type="text" id="start-date"  name="start-date"  autocomplete="off"
+
+                                <div class="mb-2">
+                                    <label class="form-label" for="start-date">Từ ngày</label>
+                                    <input class="form-control" type="text" id="start-date"  name="start-date"  autocomplete="off"
                                            data-date-format="dd-MM-yyyy"/>
                                 </div>
-                                <div class="mb-4">
+                                <div class="mb-2">
                                     <label class="form-label" for="finish-date">Đến ngày</label>
-                                    <input type="text" id="finish-date"  name="finish-date"  autocomplete="off"
+                                    <input class="form-control" type="text" id="finish-date"  name="finish-date"  autocomplete="off"
                                            data-date-format="dd-MM-yyyy"/>
                                 </div>
-                                <div class="mb-4 d-flex align-items-center justify-content-end">
-                                    <button type="submit" class="btn btn-danger auth-btn">Lưu</button>
+                                <div class="mb-2">
+                                    <label class="form-label" for="promotion-name">Tên khuyến mãi</label>
+                                    <input class="form-control" type="text" id="promotion-name"  autocomplete="off"/>
                                 </div>
-                                </form>
+                                <div class="mb-2 d-flex align-items-center justify-content-end">
+                                    <button type="button" class="btn btn-primary btn-add-product">Thêm sản phẩm</button>
+                                </div>
+                            </div>
+                            <table class="table table-borderless table-striped table-vcenter">
+                                <thead>
+                                <tr>
+                                    <th class="text-uppercase text-center">Tên sản phẩm</th>
+                                    <th class="text-uppercase text-center">Giá gốc</th>
+                                    <th class="text-uppercase text-center">Phần trăm giảm giá</th>
+                                    <th class="text-uppercase text-center">Giá khuyến mãi</th>
+                                    <th class="text-center text-uppercase">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                            <div class="mb-4 d-flex align-items-center justify-content-center">
+                                <button type="submit" class="btn btn-danger auth-btn btn-save-promotion">Lưu</button>
                             </div>
                         </div>
                     </div>
@@ -50,38 +69,442 @@
         </div>
     </div>
 </div>
+<div class="modal fade text-center" id="addProductToPromotionModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalAddProductTopromotionTitle">Thêm sản phẩm</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Sản phẩm</label>
+                    <div class="col-sm-9">
+                        <select class="custom-select product-select" style="width: 100%">
+                            <th:block th:each="product : ${productList}">
+                                <option th:value="${product.id}"  th:text="${product.name}" th:data-price="${product.price}">
+                                </option>
+                            </th:block>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Giá gốc:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="productPrice" readonly/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Giảm giá(%):</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="percent" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Giá khuyến mãi:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="promotionalPrice" readonly/>
+                    </div>
+                </div>
+            </div>
 
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-confirm-add-product">Thêm</button>
+                <button class="btn btn-danger" type="button" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade text-center" id="updateProductPromotionModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalUpdateProductToPromotionTitle">Sửa sản phẩm</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Sản phẩm</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="productNameUpdate" readonly/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Giá gốc:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="productPriceUpdate" readonly/>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Giảm giá(%):</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="percentUpdate" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">Giá khuyến mãi</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="promotionalPriceUpdate" readonly/>
+                    </div>
+                </div>
+            </div>
 
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-confirm-update-product">Thêm</button>
+                <button class="btn btn-danger" type="button" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/NOTIFY.js}" ></script>
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
 <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 <script type="text/javascript" th:src="@{/js/index.js}" ></script>
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
 
+<script>
+    var promotionDetails = [];
+    var selectedRowIndex;
+    $(document).ready(function() {
+        $(".btn-add-product").on('click', function (event) {
+            $("#addProductToPromotionModal").modal('show');
+        })
+        $("#productPrice").val($(".product-select").find("option:selected").data("price"));
+
+        $(".product-select").on('change', function (event) {
+            $("#productPrice").val($(".product-select").find("option:selected").data("price"));
+        })
+
+        $("#percent").on('input', function () {
+            let percent = $("#percent").val();
+            if (isNaN(percent)) {
+                return;
+            }
+            let price = $("#productPrice").val();
+            let newPrice;
+            if(percent )
+            if(percent < 0 ){
+                newPrice = price;
+            }else if(percent > 100){
+                newPrice = 0;
+            }else {
+                newPrice = price - (price * percent / 100)
+            }
+            $("#promotionalPrice").val(newPrice);
+        })
+
+        $("#percentUpdate").on('input', function () {
+            let percent = $("#percentUpdate").val();
+            if (isNaN(percent)) {
+                return;
+            }
+            let price = $("#productPriceUpdate").val();
+            let newPrice;
+            if(percent )
+                if(percent < 0 ){
+                    newPrice = price;
+                }else if(percent > 100){
+                    newPrice = 0;
+                }else {
+                    newPrice = price - (price * percent / 100)
+                }
+            $("#promotionalPriceUpdate").val(newPrice);
+        })
+
+        $(".btn-confirm-add-product").on('click', function (e) {
+            let percentage = $("#percent").val();
+            if(!percentage || percentage == 0){
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PRODUCT_PRICE_BLANK,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+
+            let newDetail = {
+                productId : $(".product-select").val(),
+                productName: $(".product-select").find("option:selected").text(),
+                productPrice: $("#productPrice").val(),
+                percentage : percentage,
+                promotionalPrice: $("#promotionalPrice").val()
+            }
+
+            let existDetail = false;
+            $.each(promotionDetails, function (index, detail) {
+                if(detail.productId == newDetail.productId){
+                    existDetail = true;
+                    return;
+                }
+            })
+            if(!existDetail){
+                promotionDetails.push(newDetail);
+            }else {
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PROMOTION_PRODUCT_DUPLICATE,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+            }
+            displayDetail();
+
+            $("#addProductToPromotionModal").modal('hide');
+            $("#percent").val("");
+            $("#promotionalPrice").val("");
+        })
+
+        $(".table").on("click", "#btn-delete-detail", function() {
+
+            let row = $(this).closest("tr"); // Tìm dòng chứa nút "Xóa" được click
+            let rowIndex = row.index(); // Lấy chỉ số (index) của dòng
+            Swal.fire({
+                title: MESSAGE_NOTIFY.PROMOTION_DELETE_PRODUCT,
+                text: '',
+                icon: 'warning',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText:'Xóa',
+                showCancelButton: true,
+                cancelButtonText:'Quay lại',
+                allowOutSideClick: false
+            }).then((result) => {
+                if(result.isConfirmed){
+                    // Xóa dòng khỏi bảng
+                    row.remove();
+                    promotionDetails.splice(rowIndex, 1);
+                }
+            });
+        });
+        $(".table").on("click", "#btn-update-detail", function() {
+
+            let row = $(this).closest("tr");
+            selectedRowIndex = row.index();
+            let detail = promotionDetails[selectedRowIndex];
+
+            $("#productNameUpdate").val(detail.productName);
+            $("#productPriceUpdate").val(detail.productPrice);
+            $("#percentUpdate").val(detail.percentage);
+            $("#promotionalPriceUpdate").val(detail.promotionalPrice);
+            $("#updateProductPromotionModal").modal("show");
+        });
+
+
+        $(".btn-confirm-update-product").click(function() {
+
+            let updatedPercent = $("#percentUpdate").val();
+
+            if(!updatedPercent){
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PROMOTION_PERCENT_BLANK,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+
+            // Lấy thông tin chỉnh sửa từ các trường input trong modal
+            let updatedPercentValue= $("#percentUpdate").val();
+            let updatedPromotionalPrice= $("#promotionalPriceUpdate").val();
+
+            // Cập nhật thông tin chi tiết sản phẩm trong mảng receiptDetails
+            promotionDetails[selectedRowIndex].percentage = updatedPercentValue;
+            promotionDetails[selectedRowIndex].promotionalPrice = updatedPromotionalPrice;
+
+
+            displayDetail();
+            $("#updateProductPromotionModal").modal("hide");
+        });
+
+        $(".btn-save-promotion").on('click', function (e) {
+            let startDate = $("#start-date").val();
+            let finishDate = $("#finish-date").val();
+            let promotionName = $("#promotion-name").val();
+
+            if(!startDate){
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PROMOTION_START_DATE_BLANK,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+            if(!finishDate){
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PROMOTION_END_DATE_BLANK,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+            if(!promotionName){
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PROMOTION_NAME_BLANK,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+            if(promotionDetails.length == 0){
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PROMOTION_PRODUCT_BLANK,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+
+            let request = {
+                name: promotionName,
+                startDate: startDate,
+                endDate: finishDate,
+                data: promotionDetails
+            }
+
+            $.ajax({
+                type:"POST",
+                url:'/admin/promotion/check-before-save',
+                data: {
+                    start_date: startDate,
+                    finish_date: finishDate,
+                    name: promotionName
+                },
+                success: function (response) {
+                    if(response == "OK"){
+                        $.ajax({
+                            type:"POST",
+                            url:'/admin/promotion/add',
+                            contentType:"application/json",
+                            data: JSON.stringify(request),
+                            success: function (response) {
+                                if(response == "OK"){
+                                    Swal.fire({
+                                        title: '',
+                                        text: MESSAGE_NOTIFY.PROMOTION_ADD_SUCCESS,
+                                        icon: 'success',
+                                        confirmButtonColor: '#3085d6',
+                                        timer : 3000,
+                                        timerProgressBar: true
+                                    }).then((result) => {
+                                        if(result.dismiss  == Swal.DismissReason.timer){
+                                            window.location.href = '/admin/promotion/page/1';
+                                        } else if(result.isConfirmed){
+                                            window.location.href = '/admin/promotion/page/1';
+                                        }
+                                    })
+                                }else {
+                                    Swal.fire({
+                                        title: '',
+                                        text: MESSAGE_NOTIFY.LOGIC_ERROR,
+                                        icon: 'error'
+                                    })
+                                }
+                            },error: function (){
+                                Swal.fire({
+                                    title: '',
+                                    text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                                    icon: 'error'
+                                })
+                            }
+                        });
+                    }else if(response.includes("Time")){
+                        Swal.fire({
+                            title: '',
+                            text: MESSAGE_NOTIFY.PROMOTION_TIME_DUPLICATE,
+                            icon: 'error'
+                        })
+                    }else {
+                        Swal.fire({
+                            title: '',
+                            text: MESSAGE_NOTIFY.PROMOTION_NAME_DUPLICATE,
+                            icon: 'error'
+                        })
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                        icon: 'error'
+                    })
+                }
+            });
+        })
+    });
+
+    function displayDetail() {
+
+        let detailField = $(".table tbody");
+        detailField.empty();
+        $.each(promotionDetails, function(index, detail) {
+
+            let receiptDetailField = $("<tr>").html(
+                "<td class='d-none d-md-table-cell fs-sm'><strong class='product-name'>" + detail.productName + "</strong></td>" +
+                "<td class='d-none d-md-table-cell fs-sm'><strong class='product-price'>" + detail.productPrice + "</strong></td>" +
+                "<td class='d-none d-md-table-cell fs-sm'><strong class='product-quantity'>" + detail.percentage + "</strong></td>" +
+                "<td class='d-none d-md-table-cell fs-sm'><strong class='product-quantity'>" + detail.promotionalPrice + "</strong></td>" +
+                "<td class='text-center fs-sm'>" +
+                "<button type='button' class='btn btn-sm btn-alt-secondary' id='btn-update-detail'>" +
+                "<i class='fas fa-pencil-alt'></i></button>" +
+                "<button type='button' class='btn btn-sm btn-alt-secondary' id='btn-delete-detail'>" +
+                "<i class='fa fa-fw fa-times text-danger'></i></button>" +
+                "</td>" +
+                "</tr>");
+            detailField.append(receiptDetailField);
+        });
+    }
+</script>
+<script>
+    $('#percent').keyup(function(event) {
+        formatNumber2(event, $(this))
+    })
+
+    $('#percentUpdate').keyup(function(event) {
+        formatNumber2(event, $(this))
+    })
+</script>
 <script type="text/javascript">
     $(function () {
         $("#start-date").datepicker({
             autoclose: true,
             todayHighlight: true,
-            endDate: '+0d',
             format: 'dd-mm-yyyy',
-            orientation: 'top left'
+            orientation: 'bottom left',
+            startDate:new Date()
         }).on('changeDate', function(selected){
             let minDate = new Date(selected.date.valueOf());
+            // minDate.setDate(minDate.getDate() + 1);
             $('#finish-date').datepicker('setStartDate', minDate);
         });
 
-
-
-
         $("#finish-date").datepicker({
             autoclose: true,
-            todayHighlight: true,
-            endDate: '+0d',
+            // todayHighlight: true,
+            // endDate: '+0d', ngày kết thúc là ngày hiện tại, không cho chọn tương lai
             format: 'dd-mm-yyyy',
-            orientation: 'top left'
+            orientation: 'bottom left',
+            startDate:new Date()
         }).on('changeDate', function(selected){
             let minDate = new Date(selected.date.valueOf());
+            // minDate.setDate(minDate.getDate() - 1);
             $('#start-date').datepicker('setEndDate', minDate);
         });
 

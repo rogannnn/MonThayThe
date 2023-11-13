@@ -45,7 +45,7 @@
         $('#form').submit(function (event) {
             event.preventDefault();
             var email = $('#email').val();
-            url = '/Shopme/forgot_password/generateOTP';
+            url = '/forgot_password/generateOTP';
             $.ajax({
                 type: 'POST',
                 url: url,
@@ -54,7 +54,7 @@
                 }
             }).done(function (response) {
                 if(response.includes("success")){
-                    window.location.href = "/Shopme/forgot_password/otp";
+                    window.location.href = "/forgot_password/otp";
                 }else if (response.includes("found")){
                     $('.custom-notify').text("Không tìm thấy tài khoản trùng với email: " + email);
                     $("#alert").show();

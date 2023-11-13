@@ -44,7 +44,7 @@ public class OrderDetail {
     }
 
     public Double getUnitPrice() {
-        return product.getPrice();
+        return unitPrice;
     }
 
     public void setUnitPrice(Double unitPrice) {
@@ -65,5 +65,16 @@ public class OrderDetail {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderDetail{" +
+                "id=" + id +
+                ", quantity=" + quantity +
+                ", unitPrice=" + unitPrice +
+                ", order=" + order +
+                ", product=" + product +
+                '}';
     }
 }

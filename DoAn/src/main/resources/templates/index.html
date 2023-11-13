@@ -93,19 +93,20 @@
     <div class="row">
         <div class="col">
             <div class="owl-carousel own-theme">
-                <div class="item px-2" th:each="product : ${listProduct}">
+                <div class="item px-2" th:each="product : ${productDTOList}">
                     <div class="card border-0">
                         <a th:href="@{'/product/' + ${product.id}}" class="text-decoration-none">
+                            <span class="sale_label" th:if="${product.discount != null}">- [[${product.discount}]]%</span>
                             <img th:src="@{${product.getImageProducts()[0].getPath()}}" class="card-img-top">
                             <div class="card-body">
                                 <h6 class="text-truncate text-dark">[[${product.name}]]</h6>
                                 <div class="price d-flex justify-content-center">
                                     <span  class="new_price text-danger h4 px-3 pe-0"
-                                           th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></span>
+                                           th:text="${#numbers.formatDecimal(product.getPriceDiscount(), 0, 'COMMA', 0, 'POINT')}"></span>
                                     <span class="text-danger h4" style="padding-right: 10px;">đ</span>
-<!--                                    <span class="old_price text-muted text-strikethrough">-->
-<!--                                      <s>490,000đ</s>-->
-<!--                                    </span>-->
+                                    <span th:if="${product.price != product.priceDiscount}" class="old_price text-muted text-strikethrough">
+                                      <s th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></s>
+                                    </span>
                                 </div>
                             </div>
                         </a>
@@ -133,19 +134,21 @@
     <div class="row">
         <div class="col">
             <div class="owl-carousel own-theme">
-                <div class="item px-2" th:each="product : ${topSellingProducts}">
+                <div class="item px-2" th:each="product : ${productDTOSellingList}">
                     <div class="card border-0">
                         <a th:href="@{'/product/' + ${product.getId()}}" class="text-decoration-none">
+
+                            <span class="sale_label" th:if="${product.discount != null}">- [[${product.discount}]]%</span>
                             <img th:src="@{${product.getImageProducts()[0].getPath()}}" class="card-img-top">
                             <div class="card-body">
                                 <h6 class="text-truncate text-dark">[[${product.name}]]</h6>
                                 <div class="price d-flex justify-content-center">
-                                      <span class="new_price text-danger h4 px-3 pe-0"
-                                            th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></span>
+                                    <span class="new_price text-danger h4 px-3 pe-0"
+                                            th:text="${#numbers.formatDecimal(product.getPriceDiscount(), 0, 'COMMA', 0, 'POINT')}"></span>
                                     <span class="text-danger h4" style="padding-right: 10px;">đ</span>
-<!--                                    <span class="old_price text-muted text-strikethrough">-->
-<!--                                      <s>490,000đ</s>-->
-<!--                                    </span>-->
+                                    <span th:if="${product.price != product.priceDiscount}" class="old_price text-muted text-strikethrough">
+                                      <s th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></s>
+                                    </span>
                                 </div>
                             </div>
                         </a>

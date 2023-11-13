@@ -1,21 +1,24 @@
 package com.example.tttndemo.controller;
 
 import com.example.tttndemo.authentication.MyUserDetails;
+import com.example.tttndemo.dto.CartDTO;
+import com.example.tttndemo.dto.ProductDTO;
 import com.example.tttndemo.entity.CartItem;
+import com.example.tttndemo.entity.Product;
 import com.example.tttndemo.entity.User;
 import com.example.tttndemo.exception.UserNotFoundException;
 import com.example.tttndemo.service.CartItemService;
+import com.example.tttndemo.service.ProductService;
+import com.example.tttndemo.service.PromotionDetailService;
 import com.example.tttndemo.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -24,9 +27,14 @@ public class CartController {
     private final CartItemService cartItemService;
     private final UserService userService;
 
-    public CartController(CartItemService cartItemService, UserService userService) {
+    private final ProductService productService;
+    private final PromotionDetailService promotionDetailService;
+
+    public CartController(CartItemService cartItemService, UserService userService, ProductService productService, PromotionDetailService promotionDetailService) {
         this.cartItemService = cartItemService;
         this.userService = userService;
+        this.productService = productService;
+        this.promotionDetailService = promotionDetailService;
     }
 
 
@@ -35,9 +43,15 @@ public class CartController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getCurrentlyLoggedInUser(auth);
         List<CartItem> cartItems = cartItemService.listCartItems(user);
+        List<CartDTO> cartDtos = new ArrayList<>();
+
+        for(CartItem c : cartItems){
+            cartDtos.add(new CartDTO(c,
+                    new ProductDTO(promotionDetailService.findDiscountByProductId(c.getProduct().getId()),c.getProduct())));
+        }
 
         model.addAttribute("cart_quantity", cartItemService.countCartItemByUser(user));
-        model.addAttribute("cartItems", cartItems);
+        model.addAttribute("cartItems", cartDtos);
         model.addAttribute("pageTitle", "Shopping Cart");
         return "cart";
     }
@@ -103,5 +117,16 @@ public class CartController {
             return null;
         }
         return cartItemService.countCartItemByUser(userService.getById(user.getId()));
+    }
+
+
+    @GetMapping("/cart/check-quantity-product")
+    @ResponseBody
+    public boolean isUpdateQuantityLessThanInStock(@RequestParam("quantity") Integer quantity,
+                                                  @RequestParam("product") Integer productId){
+
+        Product product = productService.getProductById(productId);
+
+        return quantity <= product.getInStock();
     }
 }

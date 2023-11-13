@@ -15,9 +15,6 @@ public class Brand {
     @Column(length = 128, nullable = false, unique = true)
     private String name;
 
-    @Column(length = 300)
-    private String images;
-
     @Column()
     private String description;
 
@@ -44,13 +41,6 @@ public class Brand {
         this.name = name;
     }
 
-    public String getImages() {
-        return images;
-    }
-
-    public void setImages(String images) {
-        this.images = images;
-    }
 
     public String getDescription() {
         return description;
@@ -88,7 +78,6 @@ public class Brand {
         return "Brand{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", images='" + images + '\'' +
                 ", description='" + description + '\'' +
                 ", enabled=" + enabled +
                 ", products=" + products +

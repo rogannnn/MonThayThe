@@ -137,13 +137,13 @@ public class UserController {
     }
 
     @PostMapping("/admin/user/add")
-    public String saveUser(User user, BindingResult errors, RedirectAttributes redirectAttributes) {
+    public String saveUser(User user,  RedirectAttributes redirectAttributes) {
 
         String encodePassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodePassword);
         user.setRegistrationDate(new Date());
         userService.saveUser(user);
-        redirectAttributes.addFlashAttribute("messageSuccess", "The user has been saved successfully.");
+        redirectAttributes.addFlashAttribute("messageSuccess", "Người dùng đã được lưu thành công.");
         return "redirect:/admin/user/page/1";
 
     }
@@ -152,7 +152,7 @@ public class UserController {
     public String deleteUser(@PathVariable(name = "id") Integer id, RedirectAttributes redirectAttributes) {
         try {
             userService.deleteUser(id);
-            redirectAttributes.addFlashAttribute("messageSuccess", "The user ID " + id + " has been deleted successfully");
+            redirectAttributes.addFlashAttribute("messageSuccess", "Người dùng với id = " + id + " đã bị xóa thành công!");
         }
         catch (UserNotFoundException ex) {
             redirectAttributes.addFlashAttribute("messageError", ex.getMessage());
@@ -192,7 +192,7 @@ public class UserController {
 
             userService.saveUser(user);
 
-            redirectAttributes.addFlashAttribute("messageSuccess", "The user has been edited successfully.");
+            redirectAttributes.addFlashAttribute("messageSuccess", "Cập nhật người dùng thành công!");
             return "redirect:/admin/user/page/1";
 
     }

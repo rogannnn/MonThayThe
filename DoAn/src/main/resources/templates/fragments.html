@@ -111,7 +111,7 @@
     <!-- PAGE LINK -->
     <a th:fragment="page_link(pageNum, label, entityName)"
        class="page-link"
-       th:href="@{'/admin/'+ ${entityName} + '/page/' + ${pageNum} + ${sortField != null ? '?sortField=' + sortField : ''}  + ${sortDir != null ? '&sortDir=' + sortDir : ''} + ${keyword != null ? '&keyword=' + keyword : ''} + ${categoryId != null ? '&categoryId=' + categoryId : ''}}">[[${label}]]</a>
+       th:href="@{'/admin/'+ ${entityName} + '/page/' + ${pageNum} + ${status != null ? '?status=' + status : ''} + ${sortField != null ? '?sortField=' + sortField : ''}  + ${sortDir != null ? '&sortDir=' + sortDir : ''} + ${keyword != null ? '&keyword=' + keyword : ''} + ${categoryId != null ? '&categoryId=' + categoryId : ''}}">[[${label}]]</a>
     <!-- PAGE LINK END -->
 
     <!-- PAGINATION -->

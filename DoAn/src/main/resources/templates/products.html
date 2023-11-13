@@ -30,10 +30,14 @@
       <aside class="col d-flex justify-content-end align-items-center pe-4">
         <span class="me-2">Hiển thị [[${totalProduct}]] kết quả</span>
         <select id="orderBy" class="form-select" style="width: 245px;font-size: 14px;">
-          <option value="date" selected>Mới nhất</option>
+          <option value="date" th:selected="${sortField != null && sortField == 'createdAt'}">Mới nhất</option>
 <!--          <option value="rating">Thứ tự theo điểm đánh giá</option>-->
-          <option value="price-asc">Thứ tự giá: từ thấp đến cao</option>
-          <option value="price-desc">Thứ tự giá: từ cao xuống thấp</option>
+          <option value="price-asc" th:selected="${sortField != null && sortField == 'price' && sortDir == 'asc'}">
+            Thứ tự giá: từ thấp đến cao
+          </option>
+          <option value="price-desc" th:selected="${sortField != null && sortField == 'price' && sortDir == 'desc'}">
+            Thứ tự giá: từ cao xuống thấp
+          </option>
         </select>
       </aside>
     </div>
@@ -42,27 +46,29 @@
         <div class="brand p-2">
           <h5>Thương hiệu</h5>
           <select id="brand-select" class="form-select" aria-label="Default select example">
-            <option value="0">Tất cả</option>
-            <option th:each="brand: ${listBrand}" th:value="${brand.id}" th:text="${brand.name}"></option>
+            <option th:value="0" th:selected="${brandId == 0}">Tất cả</option>
+            <option th:each="brand: ${listBrand}" th:value="${brand.id}" th:text="${brand.name}"
+            th:selected="${brandId == brand.id}"></option>
           </select>
         </div>
-<!--        <div class="price p-2">-->
-<!--          <h5>Mức giá</h5>-->
-<!--          <select class="form-select" aria-label="Default select example">-->
-<!--            <option selected>Tất cả</option>-->
-<!--            <option value="1">Giá dưới 100.000đ</option>-->
-<!--            <option value="2">100.000đ - 200.000đ</option>-->
-<!--            <option value="3">200.000đ - 300.000đ</option>-->
-<!--            <option value="4">300.000đ - 500.000đ</option>-->
-<!--            <option value="5">500.000đ - 1000.000đ</option>-->
-<!--            <option value="6">Giá trên 1.000.000đ</option>-->
-<!--          </select>-->
-<!--        </div>-->
+        <div class="price p-2">
+          <h5>Mức giá</h5>
+          <select class="form-select" id="price-select" aria-label="Default select example">
+            <option value="0" th:selected="${priceId == 0}">Tất cả</option>
+            <option value="1" th:selected="${priceId == 1}">Giá dưới 100.000đ</option>
+            <option value="2" th:selected="${priceId == 2}">100.000đ - 200.000đ</option>
+            <option value="3" th:selected="${priceId == 3}">200.000đ - 300.000đ</option>
+            <option value="4" th:selected="${priceId == 4}">300.000đ - 500.000đ</option>
+            <option value="5" th:selected="${priceId == 5}">500.000đ - 1000.000đ</option>
+            <option value="6" th:selected="${priceId == 6}">Giá trên 1.000.000đ</option>
+          </select>
+        </div>
         <div class="category p-2">
           <h5>Loại sản phẩm</h5>
             <select id="category-select" class="form-select" aria-label="Default select example">
-              <option value="0">Tất cả</option>
-              <option th:each="category: ${listCategory}" th:value="${category.id}" th:text="${category.name}"></option>
+              <option th:value="0" th:selected="${categoryId == 0}">Tất cả</option>
+              <option th:each="category: ${listCategory}" th:value="${category.id}" th:text="${category.name}"
+              th:selected="${categoryId == category.id}"></option>
             </select>
         </div>
         <div class="d-flex justify-content-center pt-3">
@@ -80,16 +86,17 @@
             <div class="item px-2 my-2" style="border: 1px solid #f5f5f5;box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;">
               <div class="card border-0 ">
                 <a th:href="@{'/product/' + ${product.getId()}}" class="text-decoration-none">
+                  <span class="sale_label" th:if="${product.discount != null}">- [[${product.discount}]]%</span>
                   <img th:src="@{${product.getImageProducts()[0].getPath()}}" alt="" class="card-img-top">
                   <div class="card-body">
                     <h6 class="text-truncate text-dark">[[${product.getName()}]]</h6>
                     <div class="price d-flex justify-content-center">
                       <span  class="new_price text-danger h4 px-3 pe-0"
-                             th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></span>
-                             <span class="text-danger h4" style="padding-right: 10px;">đ</span>
-<!--                       <span class="old_price text-muted text-strikethrough">-->
-<!--                        <s>490,000đ</s>-->
-<!--                      </span>-->
+                             th:text="${#numbers.formatDecimal(product.getPriceDiscount(), 0, 'COMMA', 0, 'POINT')}"></span>
+                      <span class="text-danger h4" style="padding-right: 10px;">đ</span>
+                      <span th:if="${product.price != product.priceDiscount}" class="old_price text-muted text-strikethrough">
+                        <s th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></s>
+                      </span>
                     </div>
                   </div>
                 </a>
@@ -141,19 +148,20 @@
 
 <script>
   $(document).ready(function() {
-    var totalPage = [[${totalPage}]];
+    let totalPage = [[${totalPage}]];
+
     $("#orderBy").on("change", function() {
-      var selectedOption = $(this).val();
-      var param;
+      let selectedOption = $(this).val();
+      let param;
       if(selectedOption === 'date'){
-        param = 'sortField=date&sortDir=asc';
+        param = 'sortField=createdAt&sortDir=asc';
       }else if(selectedOption === 'price-asc'){
         param = 'sortField=price&sortDir=asc';
       }else {
         param = 'sortField=price&sortDir=desc'
       }
-      var currentURL = window.location.href;
-      var newURL;
+      let currentURL = window.location.href;
+      let newURL;
         if(currentURL.includes("&sortField")){
           newURL = currentURL.split("&sortField")[0]  + "&" + param;
       }else if(currentURL.includes("?sortField")){
@@ -235,22 +243,68 @@
     $('#btnSearchAll').on("click", function () {
       let categoryId = $("#category-select").val();
       let brandId = $("#brand-select").val();
+      let priceId = $("#price-select").val();
       let currentURL = window.location.href;
 
-      if(categoryId != null && brandId != null){
-        let newUrl = currentURL.split("?")[0] + "?category=" + categoryId +"&brand=" + brandId;
-        window.location.href = newUrl;
-      } else if(categoryId != null){
-        let newUrl = currentURL.split("?")[0] + "?category=" + categoryId + "&" +
-                currentURL.split("?")[1];
-        window.location.href = newUrl;
-      }else if(brandId != null){
-        let newUrl = currentURL.split("?")[0] + "?brand=" + brandId + "&" +
-                currentURL.split("?")[1];
-        window.location.href = newUrl;
-      }else {
-        alert("Vui lòng chọn thể loại và thương hiệu trước khi tìm kiếm!");
+      // <option value="0" selected>Tất cả</option>
+      // <option value="1">Giá dưới 100.000đ</option>
+      // <option value="2">100.000đ - 200.000đ</option>
+      // <option value="3">200.000đ - 300.000đ</option>
+      // <option value="4">300.000đ - 500.000đ</option>
+      // <option value="5">500.000đ - 1000.000đ</option>
+      // <option value="6">Giá trên 1.000.000đ</option>
+      let minPrice = 0;
+      let maxPrice = 0;
+      switch (priceId){
+        case "1":
+            minPrice = 0;
+            maxPrice = 100000;
+            break;
+        case "2":
+            minPrice = 100000;
+            maxPrice = 200000;
+            break;
+        case "3":
+          minPrice = 200000;
+          maxPrice = 300000;
+          break;
+        case "4":
+          minPrice = 300000;
+          maxPrice = 500000;
+          break;
+        case "5":
+          minPrice = 500000;
+          maxPrice = 1000000;
+          break;
+        case "6":
+          minPrice = 1000000;
+          maxPrice = 100000000;
+          break;
       }
+
+
+      // if(categoryId != null && brandId != null){
+      //   let newUrl = currentURL.split("?")[0] + "?category=" + categoryId +"&brand=" + brandId;
+      //   window.location.href = newUrl;
+      // } else if(categoryId != null){
+      //   let newUrl = currentURL.split("?")[0] + "?category=" + categoryId + "&" +
+      //           currentURL.split("?")[1];
+      //   window.location.href = newUrl;
+      // }else if(brandId != null){
+      //   let newUrl = currentURL.split("?")[0] + "?brand=" + brandId + "&" +
+      //           currentURL.split("?")[1];
+      //   window.location.href = newUrl;
+      // }else {
+      //   alert("Vui lòng chọn thể loại và thương hiệu trước khi tìm kiếm!");
+      // }
+      let newUrl = '';
+      if(priceId == 0){
+        newUrl = currentURL.split("?")[0] + "?category=" + categoryId + "&brand=" + brandId;
+      }else {
+        newUrl = currentURL.split("?")[0] + "?category=" + categoryId + "&brand=" + brandId +
+                "&minPrice=" + minPrice + "&maxPrice=" + maxPrice;
+      }
+      window.location.href = newUrl;
     })
 
   });

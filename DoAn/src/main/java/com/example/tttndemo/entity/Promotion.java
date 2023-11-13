@@ -16,6 +16,9 @@ public class Promotion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
+
     @Temporal(TemporalType.DATE)
     @Column(name="start_date", nullable = false)
     private Date startDate;
@@ -23,11 +26,6 @@ public class Promotion {
     @Temporal(TemporalType.DATE)
     @Column(name="finish_date", nullable = false)
     private Date finishDate;
-
-
-    @ManyToOne()
-    @JoinColumn(name = "user_id")
-    private User user;
 
     @OneToMany(mappedBy = "promotion")
     private Collection<PromotionDetail> promotionDetails;
@@ -49,6 +47,14 @@ public class Promotion {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Date getStartDate() {
         return startDate;
     }
@@ -60,17 +66,8 @@ public class Promotion {
     public Date getFinishDate() {
         return finishDate;
     }
-
     public void setFinishDate(Date finishDate) {
         this.finishDate = finishDate;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Collection<PromotionDetail> getPromotionDetails() {

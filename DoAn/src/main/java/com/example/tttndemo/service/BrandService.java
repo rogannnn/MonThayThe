@@ -73,4 +73,8 @@ public class BrandService {
 
         brandRepository.deleteById(id);
     }
+
+    public Brand getBrandByName(String name) {
+        return brandRepository.findBrandByName(name);
+    }
 }

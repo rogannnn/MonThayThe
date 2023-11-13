@@ -2,21 +2,24 @@ package com.example.tttndemo.controller;
 
 import com.example.tttndemo.entity.Product;
 import com.example.tttndemo.entity.Promotion;
+import com.example.tttndemo.entity.PromotionDetail;
 import com.example.tttndemo.exception.PromotionNotFoundException;
+import com.example.tttndemo.request.PromotionDetailRequest;
+import com.example.tttndemo.request.PromotionRequest;
 import com.example.tttndemo.service.ProductService;
+import com.example.tttndemo.service.PromotionDetailService;
 import com.example.tttndemo.service.PromotionService;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,11 +27,14 @@ import java.util.List;
 public class PromotionController {
 
     private final PromotionService promotionService;
+
+    private final PromotionDetailService promotionDetailService;
     private final ProductService productService;
 
 
-    public PromotionController(PromotionService promotionService, ProductService productService) {
+    public PromotionController(PromotionService promotionService, PromotionDetailService promotionDetailService, ProductService productService) {
         this.promotionService = promotionService;
+        this.promotionDetailService = promotionDetailService;
         this.productService = productService;
     }
 
@@ -79,56 +85,104 @@ public class PromotionController {
     @GetMapping("admin/promotion/add")
     public String addPromotion(Model model) {
         Promotion promotion = new Promotion();
+        List<Product> productList = productService.getAll();
         model.addAttribute("promotion", promotion);
+        model.addAttribute("productList", productList);
 
         return "promotion/new_promotion";
     }
+
     @PostMapping("admin/promotion/add")
-    public String savePromotion(Promotion promotion,
-                                @RequestParam("start-date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
-                                @RequestParam("finish-date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date finishDate
-                                ,RedirectAttributes redirectAttributes)  {
-//        System.out.println(startDate);
-//        System.out.println(finishDate);
-         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    @ResponseBody
+    public String savePromotion(@RequestBody PromotionRequest request) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
-        promotion.setStartDate(startDate);
-        promotion.setFinishDate(finishDate);
-        System.out.println(startDate);
-        System.out.println(finishDate);
+        Promotion promotion = new Promotion();
+        promotion.setName(request.getName());
+        promotion.setStartDate(dateFormat.parse(request.getStartDate()));
+        promotion.setFinishDate(dateFormat.parse(request.getEndDate()));
 
-        promotionService.savePromotion(promotion);
-        redirectAttributes.addFlashAttribute("messageSuccess", "The promotion has been saved successfully.");
-        return "redirect:/admin/promotion";
+        Promotion savedPromotion = promotionService.savePromotion(promotion);
 
+        List<PromotionDetail> detailList = new ArrayList<>();
+        for(PromotionDetailRequest detailRequest : request.getData()){
+
+            PromotionDetail p = new PromotionDetail();
+            p.setPercentage(detailRequest.getPercentage());
+            p.setProduct(productService.getProductById(detailRequest.getProductId()));
+            p.setPromotion(savedPromotion);
+            detailList.add(p);
+        }
+
+        promotionDetailService.saveAll(detailList);
+        if(savedPromotion != null){
+            return "OK";
+        }
+        return "FAIL";
     }
 
-    @GetMapping("/admin/promotion/edit/{id}")
-    public String editPromotion(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Model model) {
+    @GetMapping("admin/promotion/detail/{id}")
+    public String viewPromotionDetail(@PathVariable("id") Integer id, Model model) {
         Promotion promotion = promotionService.getPromotionById(id);
-
+        if(promotion == null) return "error/404";
+        List<PromotionDetail> promotionDetails = (List<PromotionDetail>) promotion.getPromotionDetails();
         model.addAttribute("promotion", promotion);
-        return "promotion/new_promotion";
+        model.addAttribute("promotionDetails", promotionDetails);
+
+        return "promotion/promotion_detail";
     }
 
-    @PostMapping("/admin/promotion/edit/{id}")
-    public String saveEditPromotion(Promotion promotion, RedirectAttributes redirectAttributes,
-                                   @PathVariable("id") Integer id) throws IOException {
+    @PostMapping("/admin/promotion/check-before-save")
+    @ResponseBody
+    public String checkDuplicatePromotion( @RequestParam("start_date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
+                                @RequestParam("finish_date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date finishDate,
+                                           @RequestParam("name") String name) {
 
-        promotionService.savePromotion(promotion);
+        List<Promotion> promotionList = promotionService.getAll();
+        Boolean duplicateTime = false;
+        Boolean duplicateName = false;
+        for(Promotion p : promotionList){
+            if(p.getStartDate().equals(startDate)  && p.getFinishDate().equals(finishDate)){
+                duplicateTime = true;
+            }
 
-        redirectAttributes.addFlashAttribute("messageSuccess", "The promotion has been edited successfully.");
-        return "redirect:/admin/promotion";
-
-
-
+            if(p.getName().equals(name)){
+                duplicateName = true;
+            }
+        }
+        if(duplicateTime){
+            return "Duplicate Time";
+        }
+        if(duplicateName){
+            return "Duplicate Name";
+        }
+        return "OK";
 
     }
+//    @GetMapping("/admin/promotion/edit/{id}")
+//    public String editPromotion(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes, Model model) {
+//        Promotion promotion = promotionService.getPromotionById(id);
+//
+//        model.addAttribute("promotion", promotion);
+//        return "promotion/new_promotion";
+//    }
+//
+//    @PostMapping("/admin/promotion/edit/{id}")
+//    public String saveEditPromotion(Promotion promotion, RedirectAttributes redirectAttributes,
+//                                   @PathVariable("id") Integer id) throws IOException {
+//
+//        promotionService.savePromotion(promotion);
+//
+//        redirectAttributes.addFlashAttribute("messageSuccess", "The promotion has been edited successfully.");
+//        return "redirect:/admin/promotion";
+//    }
 
     @GetMapping("/admin/promotion/delete/{id}")
     public String deletePromotion(@PathVariable(name = "id") Integer id, RedirectAttributes redirectAttributes) {
         try {
+            promotionDetailService.deleteAll(id);
             promotionService.deletePromotion(id);
+
             redirectAttributes.addFlashAttribute("messageSuccess", "The Promotion ID " + id + " has been deleted successfully");
         }
         catch (PromotionNotFoundException ex) {

@@ -26,11 +26,12 @@
                                 <div class="row py-2 d-flex align-items-center justify-content-end">
                                     <h6 class="mb-0 pr-3 pb-2 text-primary"> Order ID: [[${order.id}]]</h6>
                                     <h6 class="mb-0 pr-3 pb-2 text-primary"> Khách hàng: [[${order.user.getFullName()}]]</h6>
-                                    <h6 class="mb-0 pr-3 pb-2 text-primary">Ngày đặt : [[${order.date}]]</h6>
                                     <h6 class="mb-0 pr-3 pb-2 text-primary">Địa chỉ nhận hàng : [[${order.address.ward.fullName}]],&nbsp;
                                         [[${order.address.ward.district.fullName}]],&nbsp;[[${order.address.ward.district.province.fullName}]]</h6>
                                     <h6 class="mb-0 pr-3 pb-2 text-primary">Tên người nhận : [[${order.address.name}]]</h6>
                                     <h6 class="mb-0 pr-3 pb-2 text-primary">Ngày đặt : [[${order.date}]]</h6>
+<!--                                    <h5 class="mb-0 pr-3 pb-2 ">Trạng thái đơn hàng : [[${order.getOrderStatus().getName()}]]</h5>-->
+
                                     <div class="input-group pt-2">
                                         <div class="input-group-prepend">
                                             <label class="input-group-text" for="orderStatus-select">Trạng thái</label>
@@ -69,6 +70,7 @@
                                 </div>
                                 <div class="row py-2">
                                     <div class="col md-2 offset-md-10 d-flex justify-content-center">
+<!--                                        <button class=" btn btn-danger btn-save py-2" style="width: 80%;">Quay lại</button>-->
                                         <button class=" btn btn-danger btn-save py-2" style="width: 80%;">Lưu</button>
                                     </div>
                                 </div>

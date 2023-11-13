@@ -1,10 +1,12 @@
 package com.example.tttndemo.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Entity
 @Table(name = "receipt_detail")
@@ -26,5 +28,10 @@ public class ReceiptDetail {
     @ManyToOne
     @JoinColumn(name="product_id")
     private Product product;
+
+    @JsonIgnore
+    @ManyToOne()
+    @JoinColumn(name = "receipt_id")
+    private Receipt receipt;
 
 }

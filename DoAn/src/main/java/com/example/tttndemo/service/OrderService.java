@@ -1,5 +1,7 @@
 package com.example.tttndemo.service;
 
+import com.example.tttndemo.dto.CartDTO;
+import com.example.tttndemo.dto.ProductDTO;
 import com.example.tttndemo.entity.*;
 import com.example.tttndemo.exception.OrderNotFoundException;
 import com.example.tttndemo.repository.*;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,16 +27,18 @@ public class OrderService {
     private final CartItemRepository cartItemRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final PromotionDetailRepository promotionDetailRepository;
 
     private final ProductRepository productRepository;
 
-    public OrderService(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository, OrderStatusRepository orderStatusRepository, CartItemRepository cartItemRepository, AddressRepository addressRepository, UserRepository userRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, OrderDetailRepository orderDetailRepository, OrderStatusRepository orderStatusRepository, CartItemRepository cartItemRepository, AddressRepository addressRepository, UserRepository userRepository, PromotionDetailRepository promotionDetailRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.orderStatusRepository = orderStatusRepository;
         this.cartItemRepository = cartItemRepository;
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.promotionDetailRepository = promotionDetailRepository;
         this.productRepository = productRepository;
     }
 
@@ -56,12 +61,17 @@ public class OrderService {
     public Order createOrder(Integer addressId, Integer userId, String paymentId){
 
         List<CartItem> listItem = cartItemRepository.findCartItemByUserId(userId);
+        List<CartDTO> cartDTOList = new ArrayList<>();
+        for(CartItem c : listItem){
+            cartDTOList.add(new CartDTO(c,
+                    new ProductDTO(promotionDetailRepository.FindHighestPercentageForProduct(c.getProduct().getId()),c.getProduct())));
+        }
         User user = userRepository.findById(userId).get();
         Address address = addressRepository.findById(addressId).get();
         Order order = new Order();
         OrderStatus  orderStatus = new OrderStatus(1);
         double totalPrice = 0;
-        for(CartItem c : listItem){
+        for(CartDTO c : cartDTOList){
             totalPrice += c.getSubtotal();
         }
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
@@ -74,13 +84,17 @@ public class OrderService {
         order.setAddress(address);
         order.setPaymentId(paymentId);
         Order savedOrder = orderRepository.save(order);
-        for(CartItem c : listItem){
+        for(CartDTO c : cartDTOList){
             OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setProduct(c.getProduct());
+            orderDetail.setProduct(productRepository.findById(c.getProduct().getId()).get());
             orderDetail.setQuantity(c.getQuantity());
-            orderDetail.setUnitPrice(c.getProduct().getPrice());
+            orderDetail.setUnitPrice(c.getProduct().getPriceDiscount());
             orderDetail.setOrder(savedOrder);
             orderDetailRepository.save(orderDetail);
+            Product p = productRepository.findById(c.getProduct().getId()).get();
+            p.setInStock(p.getInStock() - c.getQuantity());
+            p.setSoldQuantity(p.getSoldQuantity() + c.getQuantity());
+            productRepository.save(p);
         }
         return savedOrder;
 
@@ -108,13 +122,21 @@ public class OrderService {
         return orderRepository.findAll(pageable);
     }
 
-    public void acceptOrder(Integer id, Integer statusId) throws OrderNotFoundException {
+    public void acceptOrder(Integer id) throws OrderNotFoundException {
         try {
             Order order = orderRepository.findByOrderId(id);
-
+            Integer statusId = order.getOrderStatus().getId();
             switch (statusId) {
                 case 1: { //Neu dang cho xac nhan thi -> cho giao hang
                     order.setOrderStatus(orderStatusRepository.getOrderStatusById(2));
+                    break;
+                }
+                case 2: { //Neu dang cho giao hang -> dang giao hang
+                    order.setOrderStatus(orderStatusRepository.getOrderStatusById(3));
+                    break;
+                }
+                case 3: { //Neu dang giao thi -> cho da hang
+                    order.setOrderStatus(orderStatusRepository.getOrderStatusById(4));
                     break;
                 }
                 case 5: { //Neu dang cho yeu cau huy thi -> Da huy
@@ -124,18 +146,10 @@ public class OrderService {
                     {
                         Product product = item.getProduct();
                         product.setSoldQuantity(product.getSoldQuantity() - item.getQuantity());
-                        product.setInStock(product.getSoldQuantity() + item.getQuantity());
+                        product.setInStock(product.getInStock() + item.getQuantity());
                         productRepository.save(product);
                     }
                     order.setOrderStatus(orderStatusRepository.getOrderStatusById(6));
-                    break;
-                }
-                case 3: { //Neu dang giao thi -> da giao
-                    order.setOrderStatus(orderStatusRepository.getOrderStatusById(4));
-                    break;
-                }
-                case 2: { //Neu dang giao cho lay hang -> dang giao
-                    order.setOrderStatus(orderStatusRepository.getOrderStatusById(3));
                     break;
                 }
                 default:
@@ -149,14 +163,14 @@ public class OrderService {
         }
     }
 
-    public void denyOrder(Integer id, Integer statusId) throws OrderNotFoundException {
+    public void denyOrder(Integer id) throws OrderNotFoundException {
         try {
             Order order = orderRepository.findByOrderId(id);
+            Integer statusId = order.getOrderStatus().getId();
 
             switch (statusId) {
                 case 1:
-                case 2:
-                case 3: { //Neu dang cho xac nhan, dang giao, dang cho giao thi -> huy
+                case 2: { //Neu dang cho xac nhan, cho giao -> da huy
                     List<OrderDetail> orderDetail = orderRepository.getOrderDetail(id);
 
                     for(OrderDetail item : orderDetail)
@@ -184,10 +198,6 @@ public class OrderService {
             throw new OrderNotFoundException("Could not find any order with ID " + id);
 
         }
-    }
-
-    public void deleteOrder(Integer id){
-        orderRepository.deleteById(id);
     }
 
 

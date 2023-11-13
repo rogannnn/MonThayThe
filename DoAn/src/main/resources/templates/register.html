@@ -120,7 +120,7 @@
             if(!lastName){
                 Swal.fire({
                     title: '',
-                    text: MESSAGE_NOTIFY.LASTNAME_BLANK_ERROR,
+                    text: MESSAGE_NOTIFY.NAME_BLANK_ERROR,
                     icon: 'error',
                     confirmButtonColor: '#3085d6',
                     timer : 3000,
@@ -128,30 +128,7 @@
                 })
                 return;
             }
-            // let phone = $('#phone').val();
-            // let vietnamPhoneRegex = /^(0|\+84)[1-9]\d{8,9}$/;
-            // if(!phone){
-            //     Swal.fire({
-            //         title: '',
-            //         text: 'Vui lòng điền số điện thoại',
-            //         icon: 'error',
-            //         confirmButtonColor: '#3085d6',
-            //         timer : 3000,
-            //         timerProgressBar: true
-            //     })
-            //     return;
-            // }
-            // if (!vietnamPhoneRegex.test(phone)) {
-            //     Swal.fire({
-            //         title: '',
-            //         text: 'Số điện thoại không đúng định dạng',
-            //         icon: 'error',
-            //         confirmButtonColor: '#3085d6',
-            //         timer : 3000,
-            //         timerProgressBar: true
-            //     })
-            //     return;
-            // }
+
             let password = $('#password').val();
             if(!password){
                 Swal.fire({

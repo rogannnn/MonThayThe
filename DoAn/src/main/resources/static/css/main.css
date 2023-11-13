@@ -248,3 +248,20 @@ input.input-search:focus{
 .star.active {
     color: yellow;
 }
+
+
+/*sale label*/
+
+.sale_label{
+    position: absolute;
+    width: 40px;
+    height: 50px;
+    z-index: 9;
+    background-image: url(//theme.hstatic.net/200000230435/1000666031/14/label_sale.svg?v=28);
+    background-size: contain;
+    background-repeat: no-repeat;
+    line-height: 66px;
+    font-size: 11px;
+    color: #fff;
+    text-align: center;
+}

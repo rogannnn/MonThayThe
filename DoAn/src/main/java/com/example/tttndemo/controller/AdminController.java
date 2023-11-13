@@ -3,9 +3,14 @@ package com.example.tttndemo.controller;
 
 import com.example.tttndemo.service.ReportService;
 import com.example.tttndemo.utils.Items;
+import com.example.tttndemo.utils.RevenueItem;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -53,6 +58,15 @@ public class AdminController {
         model.addAttribute("totalOrderByWeek", totalOrderByWeek);
 
         return "admin";
+    }
+
+    @PostMapping("/admin/revenue")
+    @ResponseBody
+    public List<RevenueItem> calculateRevenue(@RequestParam("start_date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
+                                              @RequestParam("finish_date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date finishDate){
+
+        List<RevenueItem> list = reportService.reportRevenue(startDate, finishDate);
+        return list;
     }
 
 }

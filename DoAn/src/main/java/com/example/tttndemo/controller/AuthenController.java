@@ -7,7 +7,7 @@ import com.example.tttndemo.service.OtpService;
 import com.example.tttndemo.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.repository.query.Param;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +39,7 @@ public class AuthenController {
 
     @ResponseBody
     @PostMapping("/users/check_email")
-    public String checkDuplicateEmail(@Param("id") Integer id, @Param("email") String email){
+    public String checkDuplicateEmail(@RequestParam("id") Integer id, @RequestParam("email") String email){
         return userService.isEmailUnique(id, email) ? "OK" : "Duplicated";
     }
 
@@ -58,7 +58,6 @@ public class AuthenController {
             emailService.sendEmailOTP(user,otp);
             return "success";
         } catch (UserNotFoundException e) {
-            System.out.println("User not found with email: " +email);
             return "not found";
         } catch (MessagingException e) {
             throw new RuntimeException(e);

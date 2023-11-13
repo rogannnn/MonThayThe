@@ -38,18 +38,4 @@ public class testcontroller {
         return "test";
     }
 
-    @PostMapping("/test")
-    public String tes1(Model model,
-            @RequestParam(name = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-                       @RequestParam(name = "finishDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date finishDate
-    ){
-        System.out.println(startDate);
-        System.out.println(startDate.getClass());
-        System.out.println(finishDate);
-        model.addAttribute("result", finishDate);
-        Promotion promotion = new Promotion(startDate,finishDate);
-        promotionService.savePromotion(promotion);
-        return "test";
-
-    }
 }

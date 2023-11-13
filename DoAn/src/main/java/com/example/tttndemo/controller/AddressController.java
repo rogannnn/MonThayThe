@@ -56,7 +56,7 @@ public class AddressController {
             model.addAttribute("provinceCode",address.getWard().getDistrict().getProvince().getCode());
             return "address/address_form";
         }catch (AddressNotFoundException ex){
-            redirectAttributes.addFlashAttribute("message","Could not found address with id "+ id);
+            redirectAttributes.addFlashAttribute("message","Không thể tìm thấy địa chỉ với id = "+ id);
             return "redirect:/address";
         }
     }
@@ -64,7 +64,7 @@ public class AddressController {
     public String deleteAddress(Model model, @PathVariable("id") Integer id, RedirectAttributes redirectAttributes){
         try {
             addressService.delete(id);
-            redirectAttributes.addFlashAttribute("message","Delete address successfully!");
+            redirectAttributes.addFlashAttribute("message","Xóa địa chỉ thành công!");
             return "redirect:/address";
         }catch (AddressNotFoundException ex){
             redirectAttributes.addFlashAttribute("message",ex);
@@ -80,14 +80,16 @@ public class AddressController {
         User user = userService.getCurrentlyLoggedInUser(auth);
         address.setUser(user);
         Address savedAddress =  addressService.saveAddress(address);
-        if(savedAddress.getDefault() == null){
-            redirectAttributes.addFlashAttribute("message","Your new address have been updated successfully!");
+        if(savedAddress.getDefault() == null && address.getId() == null){
+            redirectAttributes.addFlashAttribute("message","Địa chỉ của bạn đã được thêm mới thành công!");
             return "redirect:/address";
         }
-        if(savedAddress.getDefault() != false){
+        if(savedAddress.getDefault() != false && address.getId() == null){
             addressService.setDefaultAddress(savedAddress.getId(),user.getId());
+            redirectAttributes.addFlashAttribute("message","Địa chỉ của bạn đã được thêm mới thành công!");
+            return "redirect:/address";
         }
-        redirectAttributes.addFlashAttribute("message","Your new address have been save successfully!");
+        redirectAttributes.addFlashAttribute("message","Địa chỉ của bạn đã được cập nhật thành công!");
         return "redirect:/address";
     }
 
@@ -163,11 +165,41 @@ public class AddressController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             User user = userService.getCurrentlyLoggedInUser(auth);
             addressService.setDefaultAddress(addressId,user.getId());
-            redirectAttributes.addFlashAttribute("message","Change default address successfully!");
+            redirectAttributes.addFlashAttribute("message","Đổi địa chỉ mặc định thành công!");
         }catch (AddressNotFoundException ex){
-            redirectAttributes.addFlashAttribute("message","Error when set default address");
+            redirectAttributes.addFlashAttribute("message","Có lỗi xảy ra khi đặt địa chỉ mặc định");
             return "redirect:/address";
         }
         return "redirect:/address";
+    }
+
+    @PostMapping("/address/new")
+    @ResponseBody
+    public String addNewAddress(@RequestParam("name") String name,
+                                @RequestParam("phone") String phone,
+                                @RequestParam("specificAddress") String specificAddress,
+                                @RequestParam("wardCode") String wardCode){
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getCurrentlyLoggedInUser(auth);
+        Ward ward = addressService.getWardByCode(wardCode);
+
+        boolean hasDefault = addressService.isUserHasDefault(user);
+
+        Address address = new Address();
+        address.setName(name);
+        address.setPhone(phone);
+        address.setSpecificAddress(specificAddress);
+
+        if(hasDefault){
+            address.setDefault(false);
+        }else  address.setDefault(true);
+        address.setWard(ward);
+        address.setUser(user);
+        Address savedAddress = addressService.saveAddress(address);
+
+        if (savedAddress != null) return "save new address successfully";
+
+        return "save new address fail";
     }
 }

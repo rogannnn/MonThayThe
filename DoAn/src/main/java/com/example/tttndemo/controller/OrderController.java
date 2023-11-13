@@ -3,16 +3,18 @@ package com.example.tttndemo.controller;
 
 
 import com.example.tttndemo.authentication.MyUserDetails;
+import com.example.tttndemo.dto.CartDTO;
+import com.example.tttndemo.dto.ProductDTO;
 import com.example.tttndemo.entity.*;
 import com.example.tttndemo.exception.OrderNotFoundException;
 import com.example.tttndemo.exception.OrderStatusNotFoundException;
 import com.example.tttndemo.exception.UserNotFoundException;
 import com.example.tttndemo.export.OrderDetailExport;
 import com.example.tttndemo.service.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,8 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -36,15 +36,17 @@ public class OrderController {
     private final CartItemService cartItemService;
     private final OrderStatusService orderStatusService;
     private final AddressService addressService;
+    private final PromotionDetailService promotionDetailService;
 
     private final ProductService productService;
 
-    public OrderController(UserService userService, OrderService orderService, CartItemService cartItemService, OrderStatusService orderStatusService, AddressService addressService, ProductService productService) {
+    public OrderController(UserService userService, OrderService orderService, CartItemService cartItemService, OrderStatusService orderStatusService, AddressService addressService, PromotionDetailService promotionDetailService, ProductService productService) {
         this.userService = userService;
         this.orderService = orderService;
         this.cartItemService = cartItemService;
         this.orderStatusService = orderStatusService;
         this.addressService = addressService;
+        this.promotionDetailService = promotionDetailService;
         this.productService = productService;
     }
 
@@ -66,8 +68,13 @@ public class OrderController {
     @GetMapping("/order/{number}")
     public String getListOrderByType(@PathVariable(name = "number") Integer orderId, Model model)
             throws OrderNotFoundException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getCurrentlyLoggedInUser(auth);
 
         Order order = orderService.getOrder(orderId);
+        if(user.getId() != order.getUser().getId()){
+            return "error/404";
+        }
         model.addAttribute("order", order);
         return "order/order_detail";
     }
@@ -81,13 +88,19 @@ public class OrderController {
         if( itemList.isEmpty()){
             return "cart";
         }
+
+        List<CartDTO> cartDtos = new ArrayList<>();
+        for(CartItem c : itemList){
+            cartDtos.add(new CartDTO(c,
+                    new ProductDTO(promotionDetailService.findDiscountByProductId(c.getProduct().getId()),c.getProduct())));
+        }
+
         Address address = addressService.getDefaultAddress(user);
-        List<Address> addressList = addressService.getListAddress(user.getId());
 
         model.addAttribute("pageTitle","Check out");
-        model.addAttribute("itemList",itemList);
+        model.addAttribute("itemList",cartDtos);
         model.addAttribute("address",address);
-        model.addAttribute("addressList",addressList);
+
         return "checkout";
     }
 
@@ -126,20 +139,6 @@ public class OrderController {
 
     }
 
-    @GetMapping("/order/check-quantity")
-    @ResponseBody
-    public Boolean checkQuantityProductToCreateOrder(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getCurrentlyLoggedInUser(auth);
-        List<CartItem> itemList = cartItemService.listCartItems(user);
-        boolean result = true;
-        for(CartItem c : itemList){
-            if (c.getQuantity() > c.getProduct().getInStock()){
-                result = false;
-            }
-        }
-        return result;
-    }
 
     @GetMapping("/order/payment/success")
     public String getOnlinePaymentSuccessPage(
@@ -228,18 +227,24 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/admin/order/accept")
-    public String acceptOrder(@RequestParam("id") Integer id, @RequestParam("statusId") Integer statusId) throws OrderNotFoundException {
+    @GetMapping("/admin/order/accept/{id}")
+    public String acceptOrder(@PathVariable("id") Integer id,
+                              HttpServletRequest request) throws OrderNotFoundException {
 
-        orderService.acceptOrder(id, statusId);
-        return "redirect:/admin/order";
+        orderService.acceptOrder(id);
+        String referer = request.getHeader("Referer");
+
+        return "redirect:" + referer;
     }
 
-    @GetMapping("/admin/order/deny")
-    public String denyOrder(@RequestParam("id") Integer id, @RequestParam("statusId") Integer statusId) throws OrderNotFoundException {
+    @GetMapping("/admin/order/deny/{id}")
+    public String denyOrder(@PathVariable("id") Integer id,
+                            HttpServletRequest request) throws OrderNotFoundException {
 
-        orderService.denyOrder(id, statusId);
-        return "redirect:/admin/order";
+        orderService.denyOrder(id);
+        String referer = request.getHeader("Referer");
+
+        return "redirect:" + referer;
     }
 
     @GetMapping("/admin/order/detail/{orderId}")
@@ -263,21 +268,21 @@ public class OrderController {
             OrderStatus orderStatus = orderStatusService.getOrderStatusById(statusId);
             order.setOrderStatus(orderStatus);
             orderService.saveOrder(order);
-            if(order.getOrderStatus().getId() == 4){
-                for(OrderDetail orderDetail : order.getOrderDetails()){
-                    Product product = orderDetail.getProduct();
-                    product.setInStock(orderDetail.getProduct().getInStock() - orderDetail.getQuantity());
-                    product.setSoldQuantity(orderDetail.getProduct().getSoldQuantity() + orderDetail.getQuantity());
-                    productService.saveProduct(product);
-                }
-            }else if(order.getOrderStatus().getId() == 6){
-                for(OrderDetail orderDetail : order.getOrderDetails()){
-                    Product product = orderDetail.getProduct();
-                    product.setInStock(orderDetail.getProduct().getInStock() + orderDetail.getQuantity());
-                    product.setSoldQuantity(orderDetail.getProduct().getSoldQuantity() - orderDetail.getQuantity());
-                    productService.saveProduct(product);
-                }
-            }
+//            if(order.getOrderStatus().getId() == 4){
+//                for(OrderDetail orderDetail : order.getOrderDetails()){
+//                    Product product = orderDetail.getProduct();
+//                    product.setInStock(orderDetail.getProduct().getInStock() - orderDetail.getQuantity());
+//                    product.setSoldQuantity(orderDetail.getProduct().getSoldQuantity() + orderDetail.getQuantity());
+//                    productService.saveProduct(product);
+//                }
+//            }else if(order.getOrderStatus().getId() == 6){
+//                for(OrderDetail orderDetail : order.getOrderDetails()){
+//                    Product product = orderDetail.getProduct();
+//                    product.setInStock(orderDetail.getProduct().getInStock() + orderDetail.getQuantity());
+//                    product.setSoldQuantity(orderDetail.getProduct().getSoldQuantity() - orderDetail.getQuantity());
+//                    productService.saveProduct(product);
+//                }
+//            }
         }catch (OrderNotFoundException e) {
             return "change order status fail";
         }

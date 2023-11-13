@@ -81,4 +81,9 @@ public class AddressService {
     public Ward getWardByCode(String wardCode){
         return wardRepo.findById(wardCode).get();
     }
+
+    public boolean isUserHasDefault(User user){
+        Address address = addressRepo.getAddressByDefault(user.getId());
+        return address != null;
+    }
 }

@@ -27,8 +27,8 @@
                     </div>
                 </div>
                 <div class="row justify-content-between pt-4 pb-2 mt-2" style="border-top: 2px solid #f5f5f5"
-                    th:if="${listAddress == null}">
-                    <div class="alert alert-success text-center">You don't have any addresses yet.</div>
+                    th:if="${listAddress.size() == 0}">
+                    <div class="alert alert-success text-center">Bạn chưa có địa chỉ nào</div>
                 </div>
                 <div class="row justify-content-between pt-4 pb-2 mt-2" style="border-top: 2px solid #f5f5f5"
                 th:each="address : ${listAddress}">

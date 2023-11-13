@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Integer > {
+public interface    OrderRepository extends JpaRepository<Order, Integer > {
     @Query("SELECT o FROM Order o WHERE o.id = ?1")
     Order findByOrderId(Integer id);
     @Query("SELECT o FROM Order o WHERE o.user.id = ?1 ORDER BY o.id desc")
@@ -41,5 +41,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer > {
 
     @Query("SELECT o FROM Order o WHERE o.orderStatus.id = ?1")
     Page<Order> findAdminByStatus(Integer orderStatus, Pageable pageable);
+
 
 }

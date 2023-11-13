@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/main_fragment.html::page_head('Receipts ')}" />
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sidebar.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/dashboard.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/list.css}"/>
+</head>
+<body>
+<div id="page-container" class="d-flex flex-column flex-root">
+    <div class="d-flex flex-row flex-column-fluid page">
+        <div th:replace="~{fragments/sidebar_fragment :: sidebar('receipt', 'receipt_all')}"></div>
+        <div class="d-flex flex-column wrapper">
+            <div th:replace="~{fragments/header_fragment :: header}"></div>
+            <div class="content">
+                <div class="d-flex justify-content-between align-items-center mt-3 mb-5">
+                    <h1 class="title">Phiếu nhập</h1>
+                    <a href="/admin/receipt/add">
+                        <button class="btn btn-primary d-flex align-items-center">
+                            <i class="fas fa-plus" style="margin-right: 0.5rem"></i>
+                            <span>Thêm phiếu nhập</span>
+                        </button>
+                    </a>
+
+                </div>
+                <section class="list-table">
+                    <div class="list-table-header d-flex align-items-center justify-content-between">
+                    </div>
+                    <div class="list-table-content">
+                        <div class="table-responsive">
+                            <table class="table table-borderless table-striped table-vcenter">
+                                <thead>
+                                <tr>
+                                    <th th:replace="~{fragments :: column_link('id', 'ID','receipt')}"></th>
+                                    <th>Ngày tạo</th>
+                                    <th>Nhà cung cấp</th>
+                                    <th>Tổng tiền</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="receipt : ${listReceipts}">
+                                    <td class="text-center fs-sm">
+                                        <a class="fw-semibold" href="be_pages_ecom_product_edit.html">
+                                            <strong>[[${receipt.id}]]</strong>
+                                        </a>
+                                    </td>
+                                    <td class="d-none d-sm-table-cell text-center fs-sm format-date">
+                                        <div  th:replace="~{fragments :: format_time(${receipt.createdAt})}"></div>
+                                    </td>
+                                    <td class="d-none d-md-table-cell fs-sm">
+                                        <span  th:text="${receipt.supplier.name}"></span>
+                                    </td>
+                                    <td class="d-none d-md-table-cell fs-sm">
+                                        <div th:replace="~{fragments :: format_currency(${receipt.totalPrice})}"><strong>₫</strong></div>
+                                    </td>
+                                    <td class="text-center fs-sm">
+                                        <a th:href="@{'/admin/receipt/detail/' + ${receipt.id}}">
+                                            <button type="button" class="btn btn-sm btn-alt-secondary">
+                                                <i class="fas fa-bars"></i>
+                                            </button>
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="empty d-flex flex-column align-items-center" th:if="${#lists.isEmpty(listReceipts)}">
+                                <div class="empty-image d-flex justify-content-center align-items-center" style="margin-bottom: 10px">
+                                    <img th:src="@{/images/empty-icon.svg}" style="height: 200px"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <div th:replace="~{fragments :: pagination('receipt')}"></div>
+
+                </section>
+            </div>
+
+        </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" th:src="@{/js/index.js}" ></script>
+    <script type="text/javascript" th:src="@{/js/NOTIFY.js}" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+
+
+
+</body>
+</html>

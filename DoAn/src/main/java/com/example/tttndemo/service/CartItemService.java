@@ -5,6 +5,7 @@ import com.example.tttndemo.entity.Product;
 import com.example.tttndemo.entity.User;
 import com.example.tttndemo.repository.CartItemRepository;
 import com.example.tttndemo.repository.ProductRepository;
+import com.example.tttndemo.repository.PromotionDetailRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +18,12 @@ public class CartItemService {
 
     private final ProductRepository productRepo;
 
-    public CartItemService(CartItemRepository cartItemRepo, ProductRepository productRepo) {
+    private final PromotionDetailRepository promotionDetailRepository;
+
+    public CartItemService(CartItemRepository cartItemRepo, ProductRepository productRepo, PromotionDetailRepository promotionDetailRepository) {
         this.cartItemRepo = cartItemRepo;
         this.productRepo = productRepo;
+        this.promotionDetailRepository = promotionDetailRepository;
     }
 
     public List<CartItem> listCartItems(User user){
@@ -53,7 +57,13 @@ public class CartItemService {
         cartItemRepo.updateQuantity(quantity, productId, user.getId());
 
         Product product = productRepo.findById(productId).get();
-        float subtotal = (float)(product.getPrice() * quantity);
+        Integer discount = promotionDetailRepository.FindHighestPercentageForProduct(product.getId());
+        float subtotal = 0f;
+        if(discount != null){
+            subtotal =  (float) (quantity * (product.getPrice() - (product.getPrice() * discount / 100)));
+        }else {
+            subtotal = (float)(product.getPrice() * quantity);
+        }
         return subtotal;
     }
 

@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 public class ProductService {
-    public final static int PRODUCT_PER_PAGE = 6;
+    public final static int PRODUCT_PER_PAGE = 9;
 
     private final ProductRepository productRepository;
 
@@ -31,6 +31,10 @@ public class ProductService {
 
     public List<Product> getAll(){
         return productRepository.findAllProductAvaiable();
+    }
+
+    public List<Product> getAllDESC(){
+        return productRepository.findAllProductAvaiableDESC();
     }
 
     public Product saveProduct(Product product) {
@@ -60,7 +64,8 @@ public class ProductService {
         return productRepository.getTopSellingProducts(limit);
     }
 
-    public Page<Product> findAllPageByKeyword(int pageNumber , String keyword, String sortField, String sortDir, Integer categoryId, Integer brandId){
+    public Page<Product> findAllPageByKeyword(int pageNumber , String keyword, String sortField
+            , String sortDir, Integer categoryId, Integer brandId, Integer minPrice, Integer maxPrice){
         Pageable pageable = null;
         Sort sort = null;
         if(sortField == null){
@@ -70,18 +75,38 @@ public class ProductService {
             sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
             pageable = PageRequest.of(pageNumber-1, PRODUCT_PER_PAGE, sort);
         }
-        if(keyword == null) {
-            if(categoryId != null && brandId != null){
-                return productRepository.findAllByCategoryAndBrand(categoryId, brandId, pageable);
-            }else if(categoryId != null && categoryId != 0){
-                return productRepository.findAllByCategory(categoryId,pageable);
-            }else if(brandId != null && brandId != 0){
-                return productRepository.findAllByBrand( brandId, pageable);
-            }
-        }else {
+//        tìm bằng kw
+        if(keyword != null) {
             return productRepository.findAllByKeyword(keyword,pageable);
         }
-        return productRepository.findAllProductAvaiable1(pageable);
+//        initial
+        if(categoryId == null  && brandId == null){
+            return productRepository.findAllProductPageAvaiable(pageable);
+        }
+        if(minPrice != null){
+
+            if(categoryId != 0 && brandId != 0){
+                return productRepository.findAllByCategoryAndBrandAndPrice(categoryId,
+                        brandId, minPrice, maxPrice, pageable);
+            }
+
+            if(categoryId != 0 && brandId == 0){
+                return productRepository.findAllByCategoryAndPrice(categoryId, minPrice, maxPrice, pageable);
+            }
+
+            if(categoryId == 0 && brandId != 0){
+                return productRepository.findAllByBrandAndPrice(brandId, minPrice, maxPrice, pageable);
+            }
+
+            return productRepository.findAllByPrice(minPrice, maxPrice, pageable);
+        }
+        if(categoryId != 0 && brandId != 0){
+            return productRepository.findAllByCategoryAndBrand(categoryId,brandId,pageable);
+        }else if(brandId != 0 && categoryId == 0){
+            return productRepository.findAllByBrand( brandId, pageable);
+        }else if(brandId == 0 && categoryId != 0){
+            return productRepository.findAllByCategory(categoryId, pageable);
+        }else return productRepository.findAll(pageable);
     }
 
     public Page<Product> listByPage(Integer pageNum, String keyword, String sortField, String sortDir) {

@@ -31,15 +31,15 @@
                                         <input type="hidden" th:field="*{id}" />
                                         <div class="mb-4">
                                             <label class="form-label" for="name">Name</label>
-                                            <input type="text" class="form-control" id="name" th:field="*{name}"  required/>
+                                            <input type="text" class="form-control" id="name" th:field="*{name}"/>
                                         </div>
                                         <div class="mb-4">
                                             <label class="form-label" for="description">Description</label>
-                                            <textarea class="form-control" id="description" th:field="*{description}" rows="4" required></textarea>
+                                            <textarea class="form-control" id="description" th:field="*{description}" rows="4" ></textarea>
                                         </div>
                                         <div class="mb-4 d-flex flex-column justify-content-center">
                                             <label class="form-label" for="categories">Category</label>
-                                            <select class="custom-select" required id="categories" th:field="*{category}">
+                                            <select class="custom-select" id="categories" th:field="*{category}">
                                                 <th:block th:each="cate : ${listCategories}">
                                                     <option th:value="${cate.id}" th:text="${cate.name}"></option>
                                                 </th:block>
@@ -47,7 +47,7 @@
                                         </div>
                                         <div class="mb-4 d-flex flex-column justify-content-center">
                                             <label class="form-label" for="brands">Brand</label>
-                                            <select class="custom-select" required id="brands" th:field="*{brand}">
+                                            <select class="custom-select"  id="brands" th:field="*{brand}">
                                                 <th:block th:each="brand : ${listBrands}">
                                                     <option th:value="${brand.id}" th:text="${brand.name}"></option>
                                                 </th:block>
@@ -57,7 +57,7 @@
                                             <div class="col-md-6" style="padding: 0px">
                                                 <label class="form-label" for="price">Price</label>
                                                 <div class="input-group">
-                                                    <input type="text"  class="form-control" id="price" th:field="*{price}" required  value="0">
+                                                    <input type="text"  class="form-control" id="price" th:field="*{price}"  th:value="1">
                                                     <span class="input-group-text">VNĐ</span>
                                                 </div>
                                             </div>
@@ -65,11 +65,11 @@
                                         <div class="mb-4">
                                             <div class="col-md-6" style="padding: 0px">
                                                 <label class="form-label" for="inStock">In Stock</label>
-                                                <input type="text" class="form-control" id="inStock" th:field="*{inStock}" required  value="0">
+                                                <input type="text" class="form-control" id="inStock" th:field="*{inStock}"  value="0">
                                             </div>
                                         </div>
                                         <div class=" mb-4" style="padding:0">
-                                            <input type="file" multiple  name="images" id="imageInput">
+                                            <input type="file" multiple  name="images" id="imageInput" accept="image/*" enctype="multipart/form-data">
                                             <div class="upload-zone" id="previewContainer" style="overflow: hidden">
                                                 <th:block th:each="image : ${product.getImageProducts()}">
                                                     <img th:src="${image.getPath()}" alt="product image" style="max-height: 195px; max-width: 195px">
@@ -101,10 +101,39 @@
     <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
     <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
     <script type="text/javascript" th:src="@{/js/index.js}" ></script>
+    <script type="text/javascript" th:src="@{/js/NOTIFY.js}" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
 
     <script>
         $(document).ready(function() {
+
+
+            $("#imageInput").on("change", function(event) {
+                let fileInput = event.target;
+                let files = fileInput.files;
+
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    let fileSize = file.size;
+
+
+                    let maxSize = 10 * 1024 * 1024; // 10MB
+
+                    if (fileSize > maxSize) {
+                        Swal.fire({
+                            title: '',
+                            text: "Tệp '" + file.name + "' quá lớn. Vui lòng chọn tệp nhỏ hơn 10MB.",
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            timer : 3000,
+                            timerProgressBar: true
+                        })
+                        $(this).val(""); // Đặt lại giá trị của input
+                        return;
+                    }
+                }
+            });
 
             if($("#image").val() != '' && $("#image").val() != null) {
                 let image_output = document.getElementById('image-output');
@@ -113,10 +142,10 @@
                 $('.upload-zone-content').css('display', 'none');
             }
 
-            if($('#price').val() != '' && $('#price').val() != null) {
+            if($('#price').val() != '' && $('#price').val() != null && $("#price").val() != '0') {
                 $('#price').val(formatPrice($('#price').val()));
             }
-            if($('#inStock').val() != '' && $('#inStock').val() != null) {
+            if($('#inStock').val() != '' && $('#inStock').val() != null && $("#inStock").val() != '0') {
                 $('#inStock').val(formatPrice($('#inStock').val()));
             }
 
@@ -146,6 +175,117 @@
             })
 
 
+            $('#form-product').on("submit", function (event) {
+                event.preventDefault();
+                $('#price').val(parseInt($('#price').val().split('.').join(""))) //remove dots
+                $('#inStock').val(parseInt($('#inStock').val().split('.').join(""))) //remove dots
+                let name = $("#name").val();
+                let inStock = $("#inStock").val();
+                let description = $("#description").val();
+                let price = $("#price").val();
+                let productId = "[[${product.id}]]";
+                if(productId == null || productId == ''){
+                    productId = 0;
+                }
+                if(!name){
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.NAME_BLANK_ERROR,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                    return;
+                }
+
+                if(!description){
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.DESCRIPTION_BLANK_ERROR,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                    return;
+                }
+
+                if(!inStock || inStock == '0'){
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.INSTOCK_BLANK_ERROR,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                    return;
+                }
+                if(!price || price == '0'){
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.PRODUCT_PRICE_BLANK,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                    return;
+                }
+
+                if($("#imageInput").prop("files").length <= 0 && productId == 0){
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.PRODUCT_IMAGE_BLANK,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                    return;
+                }
+
+                let form = this;
+
+                $.ajax({
+                    method:"POST",
+                    url : '/admin/product/check-before-save',
+                    data: {
+                        name: name,
+                        productId: productId
+                    },
+                    success:function (response) {
+                        if(response.includes("OK")){
+                            form.submit();
+                        }else
+                        {
+                            Swal.fire({
+                                title: '',
+                                text: MESSAGE_NOTIFY.PRODUCT_NAME_DUPLICATE,
+                                icon: 'error',
+                                confirmButtonColor: '#3085d6',
+                                timer : 3000,
+                                timerProgressBar: true
+                            })
+                        }
+                    },
+                    error: function () {
+
+                        Swal.fire({
+                            title: '',
+                            text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                            timer : 3000,
+                            icon: 'error'
+                        })
+                    }
+                })
+            });
 
         })
 
@@ -162,19 +302,8 @@
 
     </script>
     <script>
-        $('#form-product').on("submit", function (e) {
-            e.preventDefault();//stop submit event
-            $('#price').val(parseInt($('#price').val().split('.').join(""))) //remove dots
-            $('#inStock').val(parseInt($('#inStock').val().split('.').join(""))) //remove dots
-
-            $(this).off("submit");//need form submit event off.
-            $(this).submit();//submit form
-        });
-    </script>
-    <script>
         document.getElementById("imageInput").addEventListener("change", function (event) {
             var previewContainer = document.getElementById("previewContainer");
-            // previewContainer.innerHTML = "";
 
             var files = event.target.files;
             for (var i = 0; i < files.length; i++) {

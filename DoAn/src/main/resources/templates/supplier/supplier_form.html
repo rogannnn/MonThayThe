@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/main_fragment.html::page_head('Supplier Form ')}" />
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/sidebar.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/header.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/dashboard.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/add_form.css}"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+<div id="page-container" class="d-flex flex-column flex-root">
+    <div class="d-flex flex-row flex-column-fluid page">
+        <div th:replace="${supplier.id != null} ? ~{fragments/sidebar_fragment :: sidebar('supplier','supplier_all')} : ~{fragments/sidebar_fragment :: sidebar('supplier','supplier_new')}"></div>
+
+        <div class="d-flex flex-column wrapper">
+            <div th:replace="~{fragments/header_fragment :: header}"></div>
+            <div class="content">
+
+                <section class="form-container">
+                    <div class="form-container-header d-flex align-items-center justify-content-between">
+                        <h1 class="title" th:text="${supplier.id != null} ? 'Sửa Thông Tin Nhà Cung Cấp': 'Thêm Nhà Cung Cấp Mới'"></h1>
+                    </div>
+                    <div class="form-container-content">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-lg-8">
+                                <form th:action="@{/admin/supplier/save}" th:object="${supplier}"  method="post" id="form-supplier">
+<!--                                <form th:action="${supplier.id != null} ? @{'/admin/supplier/edit/' + ${supplier.id}} : @{/admin/supplier/add}" th:object="${supplier}"  method="post" id="form-supplier">-->
+                                    <input type="hidden" th:field="*{id}" />
+                                    <div class="mb-4">
+                                        <label class="form-label" for="name">Tên</label>
+                                        <input type="text" class="form-control" id="name" th:field="*{name}" />
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="name">Email</label>
+                                        <input type="text" class="form-control" id="email" th:field="*{email}"  />
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label" for="name">Số điện thoại</label>
+                                        <input type="text" class="form-control" id="phone" th:field="*{phone}"  />
+                                    </div>
+                                <div class="mb-4 d-flex align-items-center justify-content-end">
+                                    <button type="submit" class="btn btn-danger auth-btn">Lưu</button>
+                                </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
+<script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script type="text/javascript" th:src="@{/js/index.js}" ></script>
+<script type="text/javascript" th:src="@{/js/NOTIFY.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#form-supplier").submit(function (event) {
+            let name = $("#name").val();
+            let phone = $("#phone").val();
+            let email = $("#email").val();
+            let supplierId = "[[${supplier.id}]]";
+            if(!name){
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.NAME_BLANK_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+            if(!phone){
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PHONE_BLANK_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+            let vietnamPhoneRegex = /^(0|\+84)[1-9]\d{8,9}$/;
+            if (!vietnamPhoneRegex.test(phone)) {
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.PHONE_VALIDATE_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+            var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            if(!email){
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.EMAIL_BLANK_ERROR,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+
+            if(!emailRegex.test(email)){
+                event.preventDefault();
+                Swal.fire({
+                    title: '',
+                    text: MESSAGE_NOTIFY.EMAIL_VALIDATION,
+                    icon: 'error',
+                    confirmButtonColor: '#3085d6',
+                    timer : 3000,
+                    timerProgressBar: true
+                })
+                return;
+            }
+
+            if(supplierId == null) {
+                supplierId = 0;
+            }
+            event.preventDefault();
+            $.ajax({
+                method:"POST",
+                url : '/admin/supplier/check-before-save',
+                data: {
+                    name: name,
+                    email : email,
+                    supplierId: supplierId
+                },
+                success:function (response) {
+                    if(response.includes("OK")){
+                        $("#form-supplier")[0].submit();
+                    }
+
+                    if(response.includes("email")){
+                        Swal.fire({
+                            title: '',
+                            text: MESSAGE_NOTIFY.SUPPLIER_EMAIL_DUPLICATE,
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            timer : 3000,
+                            timerProgressBar: true
+                        })
+                        return;
+                    }
+
+                    if(response.includes("name"))
+                    {
+                        Swal.fire({
+                            title: '',
+                            text: MESSAGE_NOTIFY.SUPPLIER_NAME_DUPLICATE,
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6',
+                            timer : 3000,
+                            timerProgressBar: true
+                        })
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                        timer : 3000,
+                        icon: 'error'
+                    })
+                }
+            })
+
+        })
+
+    });
+</script>
+</body>
+
+</html>

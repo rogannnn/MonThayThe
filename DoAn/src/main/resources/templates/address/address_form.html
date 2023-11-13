@@ -16,42 +16,39 @@
         <div class="border border-secondary rounded p-3">
 
             <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Full name:</label>
+                <label class="col-sm-3 col-form-label">Tên:</label>
                 <div class="col-sm-9">
-                 <input type="text" class="form-control" id="name"  th:field="*{name}" required minlength="2"
-                       maxlength="128"/>
+                 <input type="text" class="form-control" id="name"  th:field="*{name}"/>
                 </div>
             </div>
             <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Phone number:</label>
+                <label class="col-sm-3 col-form-label">Số điện thoại:</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" id="phone" th:field="*{phone}" required minlength="10"
-                           maxlength="20"/>
+                    <input type="text" class="form-control" id="phone" th:field="*{phone}"/>
                 </div>
             </div>
             <div class="form-group row">
-                <label class="col-sm-3 col-form-label">Specific address:</label>
+                <label class="col-sm-3 col-form-label">Địa chỉ cụ thể:</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" id="specificAddress" th:field="*{specificAddress}" required minlength="6"
-                           maxlength="45" />
+                    <input type="text" class="form-control" id="specificAddress" th:field="*{specificAddress}" />
                 </div>
             </div>
                 <div class="form-group row">
-                    <label class="col-sm-3 col-form-label">Province</label>
+                    <label class="col-sm-3 col-form-label">Tỉnh/Thành Phố</label>
                     <div class="col-sm-9">
                         <select id="inputProvince" class="form-control">
                         </select>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-sm-3 col-form-label">District</label>
+                    <label class="col-sm-3 col-form-label">Quận/Huyện</label>
                     <div class="col-sm-9">
                         <select id="inputDistrict" class="form-control">>
                         </select>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-sm-3 col-form-label">Ward</label>
+                    <label class="col-sm-3 col-form-label">Phường/Xã</label>
                     <div class="col-sm-9">
                         <select id="inputWard" class="form-control" th:field="*{ward}">
                         </select>
@@ -86,96 +83,86 @@
     let districtCode = "[[${districtCode}]]";
     let provinceCode = "[[${provinceCode}]]";
 
+
+
     $("#addressForm").submit(function(event) {
-        // Kiểm tra giá trị của phần tử select
-        var selectedWard = $("#inputWard").val();
+
+        let name = $("#name").val();
+        let phone = $("#phone").val();
+        let specificAddress = $("#specificAddress").val();
+        let selectedWard = $("#inputWard").val();
+
+
+        if(!name){
+            event.preventDefault(); // Ngăn chặn việc submit form
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.NAME_BLANK_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+        let vietnamPhoneRegex = /^(0|\+84)[1-9]\d{8,9}$/;
+        if(!phone){
+            event.preventDefault();
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.PHONE_BLANK_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+        if (!vietnamPhoneRegex.test(phone)) {
+            event.preventDefault();
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.PHONE_VALIDATE_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
+
+        if(!specificAddress){
+            event.preventDefault();
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.SPECIFIC_ADDRESS_BLANK_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
+        }
 
         if (!selectedWard) {
             event.preventDefault(); // Ngăn chặn việc submit form
-            alert("Vui lòng chọn đầy đủ địa chỉ trước khi submit!");
+            Swal.fire({
+                title: '',
+                text: MESSAGE_NOTIFY.FULL_ADDRESS_ERROR,
+                icon: 'error',
+                confirmButtonColor: '#3085d6',
+                timer : 3000,
+                timerProgressBar: true
+            })
+            return;
         }
     });
 
-    moduleURL = "[[@{/address}]]";
+    let moduleURL = "[[@{/address}]]";
 
     $("#buttonCancelAddresss").on("click", function () {
         window.location = moduleURL;
     });
-
-
-
-
-        // if(!name){
-        //     Swal.fire({
-        //         title: '',
-        //         text: MESSAGE_NOTIFY.LASTNAME_BLANK_ERROR,
-        //         icon: 'error',
-        //         confirmButtonColor: '#3085d6',
-        //         timer : 3000,
-        //         timerProgressBar: true
-        //     })
-        //     return;
-        // }
-        //
-        // if(!phone){
-        //     Swal.fire({
-        //         title: '',
-        //         text: MESSAGE_NOTIFY.PHONE_BLANK_ERROR,
-        //         icon: 'error',
-        //         confirmButtonColor: '#3085d6',
-        //         timer : 3000,
-        //         timerProgressBar: true
-        //     })
-        //     return;
-        // }
-        // let vietnamPhoneRegex = /^(0|\+84)[1-9]\d{8,9}$/;
-        // if (!vietnamPhoneRegex.test(phone)) {
-        //     Swal.fire({
-        //         title: '',
-        //         text: MESSAGE_NOTIFY.PHONE_VALIDATE_ERROR,
-        //         icon: 'error',
-        //         confirmButtonColor: '#3085d6',
-        //         timer : 3000,
-        //         timerProgressBar: true
-        //     })
-        //     return;
-        // }
-        //
-        // if(!specificAddress){
-        //     Swal.fire({
-        //         title: '',
-        //         text: MESSAGE_NOTIFY.SPECIFIC_ADDRESS_BLANK_ERROR,
-        //         icon: 'error',
-        //         confirmButtonColor: '#3085d6',
-        //         timer : 3000,
-        //         timerProgressBar: true
-        //     })
-        //     return;
-        // }
-        // if (!selectedWard) {
-        //     Swal.fire({
-        //         title: '',
-        //         text: MESSAGE_NOTIFY.FULL_ADDRESS_ERROR,
-        //         icon: 'error',
-        //         confirmButtonColor: '#3085d6',
-        //         timer : 3000,
-        //         timerProgressBar: true
-        //     })
-        // }
-        //
-        // $.ajax({
-        //     url: '/address/save',
-        //     method: 'POST',
-        //     data:{
-        //         id: addressId,
-        //         name: name,
-        //         phone: phone,
-        //         specificAddress: specificAddress,
-        //         isDefault: isDefault,
-        //         wardCode :
-        //     }
-        // })
-    // });
 
 
 
@@ -184,5 +171,7 @@
 <script type="text/javascript" th:src="@{/js/show_dropdown_user.js}"></script>
 <script type="text/javascript" th:src="@{/js/NOTIFY.js}"></script>
 <script type="text/javascript" th:src="@{/js/common.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+
 </body>
 </html>

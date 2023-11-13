@@ -20,7 +20,7 @@
                             <a th:class="'nav-link ' + (${type == 1 ? 'active' : ''})"  class="nav-link" th:href="@{/order(type=1)}">Chờ xác nhận</a>
                         </li>
                         <li class="nav-item">
-                            <a th:class="'nav-link ' + (${type == 2 ? 'active' : ''})" class="nav-link" th:href="@{/order(type=2)}">Chờ lấy hàng</a>
+                            <a th:class="'nav-link ' + (${type == 2 ? 'active' : ''})" class="nav-link" th:href="@{/order(type=2)}">Chờ giao hàng</a>
                         </li>
                         <li class="nav-item">
                             <a th:class="'nav-link ' + (${type == 3 ? 'active' : ''})"  class="nav-link" th:href="@{/order(type=3)}">Đang giao</a>
@@ -60,7 +60,7 @@
                                 <h6 id="order-detail-product-name" class="text-black">[[${orderDetail.product.name}]]</h6>
                                 <h6 id="order-detail-product-quantity" class="text-black">x[[${orderDetail.quantity}]]</h6>
                             </div>
-                            <div id="order-detail-product-init-price" class="col-md-1 offset-md-5"  th:text="${#numbers.formatDecimal(orderDetail.unitPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                            <div id="order-detail-product-init-price" class="col-md-1 offset-md-5"  th:text="${#numbers.formatDecimal(orderDetail.getUnitPrice(), 0, 'COMMA', 0, 'POINT')} + 'đ'">
                             </div>
 
                         </div>

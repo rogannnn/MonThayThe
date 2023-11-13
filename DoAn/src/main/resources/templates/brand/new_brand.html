@@ -34,17 +34,7 @@
                                         <label class="form-label" for="description">Description</label>
                                         <textarea class="form-control" id="description" th:field="*{description}" rows="2" required></textarea>
                                     </div>
-                                    <div class="mb-4" style="padding:0px">
-                                        <div class="upload-zone d-flex justify-content-center align-items-center">
-                                            <input type="file" name="file" accept="image/png, image/jpg, image/jpeg" onchange="loadFile(event)" class="upload-zone-input" id="input-image" multiple="false" th:required="${brand.id != null} ? 'false' : 'true'"/>
-                                            <input type="text" id="image" th:field="*{images}" readonly style="display: none; opacity: 0"/>
-                                            <img id="image-output"/>
-                                            <div class="upload-zone-content">
-                                                <div class="upload-zone-title">Select file</div>
-                                                <div class="upload-zone-desc">Click browse thorough your machine</div>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                     <div class="mb-4 d-flex align-items-center justify-content-end">
                                         <button type="submit" class="btn btn-danger auth-btn">Lưu</button>
                                     </div>
@@ -61,16 +51,81 @@
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}" ></script>
 <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 </script><script type="text/javascript" th:src="@{/js/index.js}" ></script>
+<script type="text/javascript" th:src="@{/js/NOTIFY.js}" ></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
 
 <script>
         $(document).ready(function() {
 
-            if($("#image").val() != '' && $("#image").val() != null) {
-                let image_output = document.getElementById('image-output');
-                $('#image-output').css('display', 'block')
-                image_output.src = $("#image").val();
-                $('.upload-zone-content').css('display', 'none');
-            }
+
+            $("#form-brand").submit(function (event) {
+                let name = $("#name").val();
+                let description = $("#description").val();
+                let brandId = "[[${brand.id}]]";
+
+                if(!name){
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.NAME_BLANK_ERROR,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                    return;
+                }
+
+                if(!description){
+                    event.preventDefault();
+                    Swal.fire({
+                        title: '',
+                        text: MESSAGE_NOTIFY.DESCRIPTION_BLANK_ERROR,
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6',
+                        timer : 3000,
+                        timerProgressBar: true
+                    })
+                    return;
+                }
+
+
+                if(brandId == null || brandId == '' ) {
+                    brandId = 0;
+                }
+                event.preventDefault();
+                $.ajax({
+                    method:"POST",
+                    url : '/admin/brand/check-before-save',
+                    data: {
+                        name: name,
+                        brandId: brandId
+                    },
+                    success:function (response) {
+                        if(response.includes("OK")){
+                            $("#form-brand")[0].submit();
+                        }else
+                        {
+                            Swal.fire({
+                                title: '',
+                                text: MESSAGE_NOTIFY.BRAND_NAME_DUPLICATE,
+                                icon: 'error',
+                                confirmButtonColor: '#3085d6',
+                                timer : 3000,
+                                timerProgressBar: true
+                            })
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: '',
+                            text: MESSAGE_NOTIFY.CONNECT_ERROR,
+                            timer : 3000,
+                            icon: 'error'
+                        })
+                    }
+                })
+            })
 
         })
 
