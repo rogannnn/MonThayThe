@@ -183,7 +183,7 @@ public class PromotionController {
             promotionDetailService.deleteAll(id);
             promotionService.deletePromotion(id);
 
-            redirectAttributes.addFlashAttribute("messageSuccess", "The Promotion ID " + id + " has been deleted successfully");
+            redirectAttributes.addFlashAttribute("messageSuccess", "Khuyến mãi với id = " + id + " đã xóa thành công");
         }
         catch (PromotionNotFoundException ex) {
             redirectAttributes.addFlashAttribute("messageError", ex.getMessage());

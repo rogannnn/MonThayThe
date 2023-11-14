@@ -74,14 +74,14 @@
             $('#otpInput').val(otpString);
 
             $.ajax({
-                url : '/Shopme/forgot_password/validateOTP',
+                url : '/forgot_password/validateOTP',
                 method:'POST',
                 data: {
                     otp:otpString
                 }
             }).done(function (response) {
                 if(response.includes("success")){
-                    window.location.href = "/Shopme/forgot_password/change_password";
+                    window.location.href = "/forgot_password/change_password";
                 }else if (response.includes("expired")){
                     $('.message1').text("The OTP code has expired");
                     $(".showMessage").show();
@@ -97,7 +97,7 @@
             event.preventDefault();
             var email = $('.email').text();
             alert(email);
-            url = '/Shopme/forgot_password/generateOTP';
+            url = '/forgot_password/generateOTP';
             $.ajax({
                 type: 'POST',
                 url: url,

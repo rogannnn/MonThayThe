@@ -67,7 +67,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query("SELECT p FROM Product p WHERE p.price BETWEEN ?1 AND ?2")
     Page<Product> findAllByPrice(Integer minPrice, Integer maxPrice, Pageable pageable);
 
-    @Query("SELECT p FROM Product p WHERE p.enabled = true ORDER BY p.id DESC")
+    @Query("SELECT p FROM Product p WHERE p.enabled = true ORDER BY p.createdAt ASC")
     List<Product> findAllProductAvaiableDESC();
 
     @Query("SELECT new com.example.tttndemo.utils.TopSellingProduct(p.id, p.name, SUM(od.quantity) AS totalSoldQuantity)" +

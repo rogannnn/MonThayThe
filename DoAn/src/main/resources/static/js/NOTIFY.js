@@ -96,4 +96,15 @@ const MESSAGE_NOTIFY = {
     // thong ke
     START_DATE_BLANK:"Vui lòng chọn ngày bắt đầu",
     FINISH_DATE_BLANK:"Vui lòng chọn ngày kết thúc",
+
+    // review
+    REVIEW_VOTE_BLANK:"Vui lòng chọn số sao",
+    REVIEW_COMMENT_BLANK:"Vui lòng viết đánh giá",
+    REVIEW_ADD_SUCCESS:"Đánh giá thành công!",
+
+
+    //payment
+
+    PAYMENT_ERROR:"Thanh toán thất bại",
+
 }

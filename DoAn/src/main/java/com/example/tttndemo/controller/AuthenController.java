@@ -77,10 +77,9 @@ public class AuthenController {
     @ResponseBody
     public String validateOTP(@RequestParam("otp") Integer otp, HttpSession session){
         String email = (String) session.getAttribute("email");
-        System.out.println(otp);
         try {
             User user = userService.getUserByEmail(email);
-            if (otpService.isOtpValid(otp, user.getEmail())){
+            if (!otpService.isOtpValid(otp, user.getEmail())){
                 return "The OTP code are incorrect";
             }
         } catch (UserNotFoundException ex){

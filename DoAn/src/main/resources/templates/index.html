@@ -42,7 +42,7 @@
 <div class="container text-center">
     <div class="row d-flex justify-content-center">
         <div class="col bg-success p-2 text-decoration-none m-3" style="border-radius: 20px;">
-            <a th:href="@{/products?category=3}"  class="category text-decoration-none">
+            <a th:href="@{/products?category=3&brand=0}"  class="category text-decoration-none">
                 <span class="h5 text-white ">Má hồng</span>
                 <span class="category-img d-block">
         <img th:src="@{images/trang_diem_mat.webp}" alt="">
@@ -50,7 +50,7 @@
             </a>
         </div>
         <div class="col bg-success p-2 text-decoration-none m-3" style="border-radius: 20px;">
-            <a th:href="@{/products?category=1}" class="category text-decoration-none">
+            <a th:href="@{/products?category=1&brand=0}" class="category text-decoration-none">
                 <span class="h5 text-white">Phấn mắt</span>
                 <span class="category-img d-block">
         <img th:src="@{images/trang_diem_mat.webp}" alt="">
@@ -58,7 +58,7 @@
             </a>
         </div>
         <div class="col bg-success p-4 text-decoration-none m-3" style="border-radius: 20px;">
-            <a th:href="@{/products?category=2}" class="category text-decoration-none">
+            <a th:href="@{/products?category=2&brand=0}" class="category text-decoration-none">
                 <span class="h5 text-white">Mặt nạ</span>
                 <span class="category-img d-block">
           <img th:src="@{images/cham_soc_mat.webp}" alt="">
@@ -66,7 +66,7 @@
             </a>
         </div>
         <div class="col bg-success p-4 text-decoration-none m-3" style="border-radius: 20px;">
-            <a th:href="@{/products?category=4}"  class="category text-decoration-none">
+            <a th:href="@{/products?category=4&brand=0}"  class="category text-decoration-none">
                 <span class="h5 text-white">Xịt khoáng</span>
                 <span class="category-img d-block">
           <img th:src="@{images/cham_soc_toc.webp}" alt="">
@@ -103,6 +103,48 @@
                                 <div class="price d-flex justify-content-center">
                                     <span  class="new_price text-danger h4 px-3 pe-0"
                                            th:text="${#numbers.formatDecimal(product.getPriceDiscount(), 0, 'COMMA', 0, 'POINT')}"></span>
+                                    <span class="text-danger h4" style="padding-right: 10px;">đ</span>
+                                    <span th:if="${product.price != product.priceDiscount}" class="old_price text-muted text-strikethrough">
+                                      <s th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></s>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="div_add_to_card d-flex justify-content-center align-items-center">
+                            <button style="border: 2px solid red; border-radius: 20px; background-color: white;"
+                                    class="add_to_card mb-3 py-1 px-3 text-danger fw-bold">
+                                <a style="text-decoration: none; color: red" th:href="@{'/product/' + ${product.id}}">Xem chi tiết</a>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="trend_product_title text-center py-3 mb-4 position-relative">
+  <span>
+    <img th:src="@{images/flower.webp}" alt="">
+  </span>
+    <div class="py-2" style="font-size: 34px;">Sản phẩm khuyến mãi</div>
+    <span class="h6 lead destitle">Những sản phẩm đang được áp dụng khuyến mãi</span>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="owl-carousel own-theme">
+                <div class="item px-2" th:each="product : ${promotionalProductList}">
+                    <div class="card border-0">
+                        <a th:href="@{'/product/' + ${product.getId()}}" class="text-decoration-none">
+
+                            <span class="sale_label" th:if="${product.discount != null}">- [[${product.discount}]]%</span>
+                            <img th:src="@{${product.getImageProducts()[0].getPath()}}" class="card-img-top">
+                            <div class="card-body">
+                                <h6 class="text-truncate text-dark">[[${product.name}]]</h6>
+                                <div class="price d-flex justify-content-center">
+                                    <span class="new_price text-danger h4 px-3 pe-0"
+                                          th:text="${#numbers.formatDecimal(product.getPriceDiscount(), 0, 'COMMA', 0, 'POINT')}"></span>
                                     <span class="text-danger h4" style="padding-right: 10px;">đ</span>
                                     <span th:if="${product.price != product.priceDiscount}" class="old_price text-muted text-strikethrough">
                                       <s th:text="${#numbers.formatDecimal(product.getPrice(), 0, 'COMMA', 0, 'POINT')}"></s>

@@ -47,8 +47,12 @@ public class ProductController {
         List<Product> productList = productService.getAllDESC();
         List<ProductDTO> productDTOList = new ArrayList<>(); // new product
         List<ProductDTO> productDTOSellingList = new ArrayList<>();
+        List<ProductDTO> promotionalProductList = new ArrayList<>();
         for(Product p : productList){
             productDTOList.add(new ProductDTO(promotionDetailService.findDiscountByProductId(p.getId()),p));
+            if(promotionDetailService.findDiscountByProductId(p.getId()) != null){
+                promotionalProductList.add(new ProductDTO(promotionDetailService.findDiscountByProductId(p.getId()),p));
+            }
         }
         List<Product> topSellingProducts = productService.getTopSellingProduct(20);
 
@@ -57,6 +61,7 @@ public class ProductController {
             productDTOSellingList.add(new ProductDTO(promotionDetailService.findDiscountByProductId(p.getId()),p));
         }
         model.addAttribute("productDTOSellingList",productDTOSellingList);
+        model.addAttribute("promotionalProductList",promotionalProductList);
         return "index";
     }
 
@@ -241,7 +246,7 @@ public class ProductController {
         }
         imageProductService.saveAll(imageProductList);
 
-        redirectAttributes.addFlashAttribute("messageSuccess", "The product has been saved successfully.");
+        redirectAttributes.addFlashAttribute("messageSuccess", "Sản phẩm đã được lưu thành công!");
         return "redirect:/admin/product/page/1";
 
 
@@ -300,11 +305,11 @@ public class ProductController {
 
             productService.saveProduct(product);
 
-            redirectAttributes.addFlashAttribute("messageSuccess", "The product has been edited successfully.");
+            redirectAttributes.addFlashAttribute("messageSuccess", "Sản phẩm được cập nhật thành công.");
             return "redirect:/admin/product/page/1";
 
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("messageError","Vô dây rồi");
+            redirectAttributes.addFlashAttribute("messageError","Vô đây rồi");
             return "redirect:/admin/product/page/1";
         }
     }

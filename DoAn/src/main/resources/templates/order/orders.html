@@ -91,9 +91,9 @@
 <script>
     $(document).ready(function () {
         $('.requestCancelBtn').on("click", function () {
-            var  confirmation  = confirm("Bạn thật sự muốn hủy đơn hàng này?");
+            let  confirmation  = confirm("Bạn thật sự muốn hủy đơn hàng này?");
             if(confirmation){
-                var orderId = $(this).closest("#originalDiv").find("#order-id-name").text().match(/\d+/)[0];
+                let orderId = $(this).closest("#originalDiv").find("#order-id-name").text().match(/\d+/)[0];
                 url = "/order/" + orderId + "/request-cancel";
                 $.ajax({
                     type:"GET",

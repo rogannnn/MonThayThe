@@ -47,7 +47,7 @@ public class OtpService {
     }
 
     public Boolean isOtpValid(Integer otp, String email) throws ExecutionException {
-        Boolean isValid =  (otp == otpCache.get(email));
+        Boolean isValid =  (otp.equals(otpCache.get(email)));
         return isValid;
     }
 }
